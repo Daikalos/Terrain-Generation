@@ -15,9 +15,9 @@ public class TerrainInspector : Editor
 
         GUILayout.Space(10);
 
-        if (GUILayout.Button("Restore"))
+        if (GUILayout.Button("Generate"))
         {
-            terrain.Restore();
+            terrain.Generate();
         }
     }
 }

@@ -9,11 +9,10 @@ public class TerrainMesh : MonoBehaviour
     [Space(5), Header("Terrain")]
     [SerializeField, Range(1, 256)] private int _Width = 8;
     [SerializeField, Range(1, 256)] private int _Height = 8;
-    [SerializeField, Range(1, 8)] private float _TileSize = 1.0f;
-    [SerializeField, Min(0)] private float _MinPeak, _MaxPeak;
+    [SerializeField, Range(0.001f, 8)] private float _TileSize = 1.0f;
 
     [Space(5), Header("Noise")]
-    [SerializeField] private CustomNoise[] _Noises;
+    [SerializeField] private CustomNoiseParameters[] _Octaves;
 
     private Mesh _Mesh;
     private Vector3[] _Vertices;
@@ -29,6 +28,12 @@ public class TerrainMesh : MonoBehaviour
         CreateMesh();
         BuildMesh();
         AddNoise();
+
+        _Mesh.Clear();
+        _Mesh.vertices = _Vertices;
+        _Mesh.triangles = _Triangles;
+        _Mesh.colors = _Colors;
+        _Mesh.RecalculateNormals();
     }
 
     public void CreateMesh()
@@ -90,40 +95,38 @@ public class TerrainMesh : MonoBehaviour
 
     public void AddNoise()
     {
-        for (int x = 0; x < _Width; x++)
+        for (int x = 0; x < _Width; ++x)
         {
-            for (int z = 0; z < _Height; z++)
+            for (int z = 0; z < _Height; ++z)
             {
                 int i = x + z * _Width;
 
-                float yCoor = 0.0f;
-                Array.ForEach(_Noises, noise => 
-                { 
-                    yCoor += noise.GetNoise(x, z); 
-                });
-                _Vertices[i] = new Vector3(
-                    _Vertices[i].x, 
-                    Mathf.Clamp(yCoor, _MinPeak, _MaxPeak), 
-                    _Vertices[i].z);
+                float yCoord = 0.0f;
+                for (int j = 0; j < _Octaves.Length; ++j)
+                {
+                    yCoord += (float)_Octaves[j].PerlinNoise(x, z);
+                }
 
-                float posPercentage = Mathf.InverseLerp(_MinPeak, _MaxPeak, yCoor);
+                _Vertices[i] = new Vector3(_Vertices[i].x, yCoord, _Vertices[i].z);
+
+                float posPercentage = Mathf.InverseLerp(0.0f, 1.0f, yCoord);
                 _Colors[i] = new Color(0, posPercentage, 0);
             }
         }
-
-        _Mesh.Clear();
-        _Mesh.vertices = _Vertices;
-        _Mesh.triangles = _Triangles;
-        _Mesh.colors = _Colors;
-        _Mesh.RecalculateNormals();
     }
 
-    public void Restore()
+    public void Generate()
     {
         _Mesh = null;
 
         CreateMesh();
         BuildMesh();
         AddNoise();
+
+        _Mesh.Clear();
+        _Mesh.vertices = _Vertices;
+        _Mesh.triangles = _Triangles;
+        _Mesh.colors = _Colors;
+        _Mesh.RecalculateNormals();
     }
 }
