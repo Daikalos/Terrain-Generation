@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 public class HeatmapTexture : MonoBehaviour
 {
@@ -20,17 +21,15 @@ public class HeatmapTexture : MonoBehaviour
     public void Run()
     {
         _Heatmap = new int[_RenderTexture.width * _RenderTexture.height];
+        _MaxHeat = -int.MaxValue;
 
         for (int i = 0; i < _Heatmap.Length; ++i)
             _Heatmap[i] = 0;
 
-        int count = 5;
-        _MaxHeat = -int.MaxValue;
-
-        for (int i = 0; i < count; ++i) // simulate creating new terrain
+        for (int i = 0, count = 2048; i < count; ++i) // simulate creating new terrain
         {
-            int width = Random.Range(16, 128);
-            int height = Random.Range(16, 128);
+            int width = Random.Range(4, 128);
+            int height = Random.Range(4, 128);
 
             _YCoords = new float[(width + 1) * (height + 1)];
             _ColorsProc = new float[_YCoords.Length];
@@ -40,25 +39,27 @@ public class HeatmapTexture : MonoBehaviour
 
             for (int j = 0; j < octaveCount; ++j) // initialize octaves
             {
-                customNoises[j] = new CustomNoiseParameters();
-
-                customNoises[j].Position = new Vector2(Random.Range(0, 128), Random.Range(0, 128));
-                customNoises[j].Amplitude = Random.Range(1, 128);
-                customNoises[j].Frequency = Random.Range(1, 128);
+                customNoises[j] = new CustomNoiseParameters
+                {
+                    Position = new Vector2(Random.Range(0, 256), Random.Range(0, 256)),
+                    Amplitude = Random.Range(1, 256),
+                    Frequency = Random.Range(1, 256)
+                };
             }
 
-            SimulateTerrain(octaveCount, width, height);
+            SimulateTerrain(octaveCount, width, height, out float minValue, out float maxValue);
 
-            AddToHeatmap();
+            AddToHeatmap(width, height, minValue, maxValue);
         }
 
         AssignTexture();
     }
 
-    private void SimulateTerrain(int octaveCount, int width, int height)
+    private void SimulateTerrain(int octaveCount, int width, int height, out float min, out float max)
     {
-        float maxValue = -float.MaxValue;
-        float minValue = float.MaxValue;
+        min = float.MaxValue;
+        max = -float.MaxValue;
+
         for (int x = 0; x < width; ++x)
         {
             for (int y = 0; y < height; ++y)
@@ -71,10 +72,10 @@ public class HeatmapTexture : MonoBehaviour
                     noise += customNoises[j].PerlinNoise(x, y);
                 }
 
-                if (noise > maxValue)
-                    maxValue = noise;
-                if (noise < minValue)
-                    minValue = noise;
+                if (noise > max)
+                    max = noise;
+                if (noise < min)
+                    min = noise;
 
                 _YCoords[i] = noise;
             }
@@ -85,12 +86,12 @@ public class HeatmapTexture : MonoBehaviour
             for (int y = 0; y < height; ++y)
             {
                 int i = x + y * width;
-                _ColorsProc[i] = 1.0f - Mathf.InverseLerp(minValue, maxValue, _YCoords[i]);
+                _ColorsProc[i] = Mathf.InverseLerp(min, max, _YCoords[i]);
             }
         }
     }
 
-    private void AddToHeatmap(int width, int height)
+    private void AddToHeatmap(int width, int height, float min, float max)
     {
         float linearity = 0.0f;
         float leniency = 0.0f;
@@ -101,10 +102,18 @@ public class HeatmapTexture : MonoBehaviour
             {
                 int i = x + y * width;
 
-                linearity += _YCoords[i];
-
+                linearity += ((max - min) != 0) ? (_YCoords[i] - min) / (max - min) : 1.0f;
+                leniency += (_ColorsProc[i] < 0.3f) ? 1.0f : 0.0f;
             }
         }
+
+        linearity /= (width * height);
+        leniency /= (width * height);
+
+        int pos = (int)(linearity * (_RenderTexture.width - 1)) + (int)(leniency * (_RenderTexture.height - 1)) * _RenderTexture.width;
+
+        if (++_Heatmap[pos] > _MaxHeat)
+            _MaxHeat = _Heatmap[pos];
     }
 
     private void AssignTexture()
@@ -114,19 +123,33 @@ public class HeatmapTexture : MonoBehaviour
 
         RenderTexture.active = _RenderTexture;
 
-        Debug.Log(_MaxHeat);
-
         _Texture.ReadPixels(new Rect(0, 0, _RenderTexture.width, _RenderTexture.height), 0, 0);
         for (int x = 0; x < _RenderTexture.width; ++x)
         {
             for (int y = 0; y < _RenderTexture.height; ++y)
             {
-                float color = _Heatmap[x + y * _RenderTexture.width] / _MaxHeat;
+                float color = _Heatmap[x + y * _RenderTexture.width] / (float)_MaxHeat;
                 _Texture.SetPixel(x, y, _HeatmapGradient.Evaluate(color));
             }
         }
         _Texture.Apply();
 
         RenderTexture.active = null;
+    }
+
+    private void OnDrawGizmos()
+    {
+        Bounds bounds = GetComponent<MeshRenderer>().bounds;
+
+        GUIStyle style = new GUIStyle();
+        style.alignment = TextAnchor.MiddleCenter;
+        style.fontSize = 24;
+
+        Handles.Label(transform.position + new Vector3(-bounds.size.x / 2,  bounds.size.y / 2, 0) + new Vector3(-4,  4, 0), "1.0", style);
+        Handles.Label(transform.position + new Vector3(-bounds.size.x / 2, -bounds.size.y / 2, 0) + new Vector3(-4, -1, 0), "0.0", style);
+        Handles.Label(transform.position + new Vector3( bounds.size.x / 2, -bounds.size.y / 2, 0) + new Vector3( 1, -1, 0), "1.0", style);
+
+        Handles.Label(transform.position + new Vector3(0, -bounds.size.y / 2, 0) + new Vector3(0, -2, 0), "Linearity", style);
+        Handles.Label(transform.position + new Vector3(-bounds.size.x / 2, 0, 0) + new Vector3(-12,  0, 0), "Leniency", style);
     }
 }
