@@ -23,12 +23,18 @@ public struct Vector2d
 public class CustomNoise
 {
     private static int[] _Table;
-
     private static readonly int _HashMask = 255;
+
+    private static int _Seed = 0;
 
     public static void SetSeed(int seed)
     {
-        Random rng = new Random(seed.GetHashCode());
+        if (seed == _Seed)
+            return;
+
+        _Seed = seed;
+
+        Random rng = new Random(_Seed.GetHashCode());
 
         _Table = new int[512];
         for (int i = 0; i < 256; ++i)
@@ -49,6 +55,7 @@ public class CustomNoise
     public static void Restore()
     {
         _Table = _KenPerlinHash;
+        _Seed = 0;
     }
 
     public static double GetNoise(double x, double y)

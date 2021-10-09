@@ -10,6 +10,11 @@ public class TerrainMesh : MonoBehaviour
     [SerializeField, Range(1, 256)] private int _Width = 8;
     [SerializeField, Range(1, 256)] private int _Height = 8;
     [SerializeField, Range(0.001f, 8)] private float _CellSize = 1.0f;
+    [SerializeField] private Gradient _ColorGradient;
+
+    [Header("Seed")]
+    [SerializeField] private bool _UseSeed = false;
+    [SerializeField] private int _Seed;
 
     [Space(5), Header("Noise")]
     [SerializeField] private CustomNoiseParameters[] _Octaves;
@@ -23,6 +28,8 @@ public class TerrainMesh : MonoBehaviour
     public int Width => _Width;
     public int Height => _Height;
     public float TileSize => _TileSize;
+
+    public int Seed { get; set; }
 
     private void OnValidate()
     {
@@ -105,6 +112,11 @@ public class TerrainMesh : MonoBehaviour
         float yMin = float.MaxValue;
         float yMax = -float.MaxValue;
 
+        if (_UseSeed) 
+            CustomNoise.SetSeed(_Seed);
+        else 
+            CustomNoise.Restore();
+
         for (int x = 0; x < _Width; ++x)
         {
             for (int z = 0; z < _Height; ++z)
@@ -134,7 +146,7 @@ public class TerrainMesh : MonoBehaviour
                 int i = x + z * _Width;
 
                 float posPercentage = Mathf.InverseLerp(yMin, yMax, _Vertices[i].y);
-                _Colors[i] = new Color(0, posPercentage, 1.0f - posPercentage);
+                _Colors[i] = _ColorGradient.Evaluate(1.0f - posPercentage);
             }
         }
     }

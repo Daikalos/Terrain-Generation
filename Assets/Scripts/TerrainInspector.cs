@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEditor;
 
 #if UNITY_EDITOR
-[CustomEditor(typeof(TerrainMesh))]
+[CustomEditor(typeof(TerrainMesh)), CanEditMultipleObjects]
 public class TerrainInspector : Editor
 {
     public override void OnInspectorGUI()
