@@ -28,8 +28,8 @@ public class HeatmapTexture : MonoBehaviour
 
         for (int i = 0, count = 2048; i < count; ++i) // simulate creating new terrain
         {
-            int width = Random.Range(4, 128);
-            int height = Random.Range(4, 128);
+            int width = Random.Range(4, 256);
+            int height = Random.Range(4, 256);
 
             _YCoords = new float[(width + 1) * (height + 1)];
             _ColorsProc = new float[_YCoords.Length];
@@ -41,9 +41,9 @@ public class HeatmapTexture : MonoBehaviour
             {
                 customNoises[j] = new CustomNoiseParameters
                 {
-                    Position = new Vector2(Random.Range(0, 256), Random.Range(0, 256)),
-                    Amplitude = Random.Range(1, 256),
-                    Frequency = Random.Range(1, 256)
+                    Position = new Vector2(Random.Range(0, 512), Random.Range(0, 512)),
+                    Amplitude = Random.Range(1, 512),
+                    Frequency = Random.Range(1, 512)
                 };
             }
 
@@ -141,9 +141,11 @@ public class HeatmapTexture : MonoBehaviour
     {
         Bounds bounds = GetComponent<MeshRenderer>().bounds;
 
-        GUIStyle style = new GUIStyle();
-        style.alignment = TextAnchor.MiddleCenter;
-        style.fontSize = 24;
+        GUIStyle style = new GUIStyle
+        {
+            alignment = TextAnchor.MiddleCenter,
+            fontSize = 24
+        };
 
         Handles.Label(transform.position + new Vector3(-bounds.size.x / 2,  bounds.size.y / 2, 0) + new Vector3(-4,  4, 0), "1.0", style);
         Handles.Label(transform.position + new Vector3(-bounds.size.x / 2, -bounds.size.y / 2, 0) + new Vector3(-4, -1, 0), "0.0", style);
