@@ -16,23 +16,18 @@ public class HeatmapTexture : MonoBehaviour
 
     private CustomNoiseParameters[] customNoises;
     private float[] _YCoords;
-    private float[] _ColorsProc;
 
     public void Run()
     {
         _Heatmap = new int[_RenderTexture.width * _RenderTexture.height];
         _MaxHeat = -int.MaxValue;
 
-        for (int i = 0; i < _Heatmap.Length; ++i)
-            _Heatmap[i] = 0;
-
-        for (int i = 0, count = 2048; i < count; ++i) // simulate creating new terrain
+        for (int i = 0, count = 8192; i < count; ++i) // simulate creating new terrain
         {
-            int width = Random.Range(4, 256);
-            int height = Random.Range(4, 256);
+            int width = Random.Range(32, 64);
+            int height = Random.Range(32, 64);
 
             _YCoords = new float[(width + 1) * (height + 1)];
-            _ColorsProc = new float[_YCoords.Length];
 
             int octaveCount = Random.Range(1, 5);
             customNoises = new CustomNoiseParameters[octaveCount];
@@ -48,7 +43,6 @@ public class HeatmapTexture : MonoBehaviour
             }
 
             SimulateTerrain(octaveCount, width, height, out float minValue, out float maxValue);
-
             AddToHeatmap(width, height, minValue, maxValue);
         }
 
@@ -64,8 +58,6 @@ public class HeatmapTexture : MonoBehaviour
         {
             for (int y = 0; y < height; ++y)
             {
-                int i = x + y * width;
-
                 float noise = 0.0f;
                 for (int j = 0; j < octaveCount; ++j)
                 {
@@ -77,16 +69,7 @@ public class HeatmapTexture : MonoBehaviour
                 if (noise < min)
                     min = noise;
 
-                _YCoords[i] = noise;
-            }
-        }
-
-        for (int x = 0; x < width; ++x)
-        {
-            for (int y = 0; y < height; ++y)
-            {
-                int i = x + y * width;
-                _ColorsProc[i] = Mathf.InverseLerp(min, max, _YCoords[i]);
+                _YCoords[x + y * width] = noise;
             }
         }
     }
@@ -102,8 +85,10 @@ public class HeatmapTexture : MonoBehaviour
             {
                 int i = x + y * width;
 
-                linearity += ((max - min) != 0) ? (_YCoords[i] - min) / (max - min) : 1.0f;
-                leniency += (_ColorsProc[i] < 0.3f) ? 1.0f : 0.0f;
+                float vertexProc = Mathf.InverseLerp(min, max, _YCoords[i]);
+
+                linearity += vertexProc;
+                leniency += (vertexProc < 0.3f) ? 1.0f : 0.0f;
             }
         }
 
