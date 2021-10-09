@@ -12,7 +12,7 @@ public class NoiseTexture : MonoBehaviour
     public void CreateTexture()
     {
         _Texture = new Texture2D(_RenderTexture.width, _RenderTexture.height);
-        _Renderer.material.mainTexture = _Texture;
+        _Renderer.sharedMaterial.mainTexture = _Texture;
 
         RenderTexture.active = _RenderTexture;
 
@@ -21,7 +21,10 @@ public class NoiseTexture : MonoBehaviour
         {
             for (int y = 0; y < _RenderTexture.height; ++y)
             {
-                float noise = (float)CustomNoise.GetNoise(x / 8.0, y / 8.0);
+                float noise = (float)CustomNoise.GetNoise(
+                    x / (_RenderTexture.width / 256.0) + 0.5, 
+                    y / (_RenderTexture.height / 256.0) + 0.5);
+
                 _Texture.SetPixel(x, y, new Color(noise, noise, noise));
             }
         }

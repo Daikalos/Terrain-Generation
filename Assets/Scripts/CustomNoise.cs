@@ -12,9 +12,12 @@ public struct Vector2d
         this.y = y;
     }
 
+    public static Vector2d operator +(Vector2d lhs, Vector2d rhs) => new Vector2d(lhs.x + rhs.x, lhs.y + rhs.y);
+    public static Vector2d operator -(Vector2d lhs, Vector2d rhs) => new Vector2d(lhs.x - rhs.x, lhs.y - rhs.y);
+
     public Vector2d Normalize()
     {
-        double length = System.Math.Sqrt(System.Math.Pow(x, 2) + System.Math.Pow(y, 2));
+        double length = Math.Sqrt(Math.Pow(x, 2) + Math.Pow(y, 2));
         return new Vector2d(x / length, y / length);
     }
 }
@@ -23,7 +26,8 @@ public struct Vector2d
 public class CustomNoise
 {
     private static int[] _Table;
-    private static readonly int _HashMask = 255;
+    private static readonly int _TableSize = 256;
+    private static readonly int _TableMask = _TableSize - 1;
 
     private static int _Seed = 0;
 
@@ -36,20 +40,24 @@ public class CustomNoise
 
         Random rng = new Random(_Seed.GetHashCode());
 
-        _Table = new int[512];
-        for (int i = 0; i < 256; ++i)
-            _Table[i] = i;
-        for (int i = _Table.Length - 1; i > 0; --i)
+        _Table = new int[_TableSize * 2];
+        for (int i = 0; i < _TableSize; ++i)
         {
-            int r = rng.Next(0, i);
+            _Table[i] = i;
+        }
+        for (int i = _TableSize - 1; i > 0; --i)
+        {
+            int r = rng.Next(0, i + 1);
 
             // swap
             int temp = _Table[i];
             _Table[i] = _Table[r];
             _Table[r] = temp;
         }
-        for (int i = 256; i < 512; ++i)
-            _Table[i] = _Table[i % 256];
+        for (int i = 0; i < _Table.Length; ++i)
+        {
+            _Table[_TableSize + i] = _Table[i];
+        }
     }
 
     public static void Restore()
@@ -62,8 +70,8 @@ public class CustomNoise
     {
         // get corners of the cell
         // & _HashMask to stay in range of gradient grid
-        int x0 = (int)x & _HashMask;
-        int y0 = (int)y & _HashMask;
+        int x0 = (int)x & _TableMask;
+        int y0 = (int)y & _TableMask;
         int x1 = x0 + 1;
         int y1 = y0 + 1;
 
@@ -77,17 +85,23 @@ public class CustomNoise
         int v2 = _Table[_Table[x0] + y1];
         int v3 = _Table[_Table[x1] + y1];
 
+        // get gradient vectors
         Vector2d g0 = Gradient(v0);
         Vector2d g1 = Gradient(v1);
         Vector2d g2 = Gradient(v2);
         Vector2d g3 = Gradient(v3);
 
+        Vector2d p0 = new Vector2d(xr, yr) - new Vector2d(0.0f, 0.0f); // from top left to point in cell
+        Vector2d p1 = new Vector2d(xr, yr) - new Vector2d(1.0f, 0.0f); // from top right to point in cell
+        Vector2d p2 = new Vector2d(xr, yr) - new Vector2d(0.0f, 1.0f); // from bot left to point in cell
+        Vector2d p3 = new Vector2d(xr, yr) - new Vector2d(1.0f, 1.0f); // from bot right to point in cell
+
         // get dot products for each corner
         // uses dot product between gradient and distance vector from point in cell to corner
-        double d0 = Dot(g0.x, g0.y, xr,        yr);
-        double d1 = Dot(g1.x, g1.y, xr - 1.0f, yr);
-        double d2 = Dot(g2.x, g2.y, xr,        yr - 1.0f);
-        double d3 = Dot(g3.x, g3.y, xr - 1.0f, yr - 1.0f);
+        double d0 = Dot(g0.x, g0.y, p0.x, p0.y);
+        double d1 = Dot(g1.x, g1.y, p1.x, p1.y);
+        double d2 = Dot(g2.x, g2.y, p2.x, p2.y);
+        double d3 = Dot(g3.x, g3.y, p3.x, p3.y);
 
         double xf = Fade(xr);
         double yf = Fade(yr);
@@ -132,7 +146,7 @@ public class CustomNoise
     }
 
     /// <summary>
-    /// ken perlin's permutation table, works as hash function
+    /// ken perlin's permutation table, used as a table to select pseudorandom gradients
     /// </summary>
     private static readonly int[] _KenPerlinHash = 
     {

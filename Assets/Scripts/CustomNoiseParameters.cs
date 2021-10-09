@@ -5,14 +5,13 @@ using UnityEngine;
 [System.Serializable]
 public class CustomNoiseParameters
 {
-    [Header("Noise Attributes")]
     [SerializeField] private Vector2 _Position;
     [SerializeField, Range(1, 128)] private float _Amplitude;
     [SerializeField, Range(1, 128)] private float _Frequency;
 
-    public Vector2 Position => _Position;
-    public float Amplitude => _Amplitude;
-    public float Frequency => _Frequency;
+    public Vector2 Position { get => _Position; set => _Position = value; }
+    public float Amplitude { get => _Amplitude; set => _Amplitude = value; }
+    public float Frequency { get => _Frequency; set => _Frequency = value; }
 
     public float PerlinNoise(float x, float y)
     {
