@@ -1,8 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
-[System.Serializable]
+[Serializable]
 public struct Vector2d
 {
     public double x, y;
@@ -19,31 +19,36 @@ public struct Vector2d
     }
 }
 
-[System.Serializable]
+[Serializable]
 public class CustomNoise
 {
-    private int[] _Table;
+    private static int[] _Table;
 
-    public CustomNoise()
+    private static readonly int _HashMask = 255;
+
+    public static void SetSeed(int seed)
     {
-        //Random.InitState(_Seed);
+        Random rng = new Random(seed.GetHashCode());
 
-        //_Table = new int[512];
-        //for (int i = 0; i < 256; ++i)
-        //    _Table[i] = i;
-        //for (int i = _Table.Length - 1; i > 0; --i)
-        //{
-        //    int r = Random.Range(0, i);
+        _Table = new int[512];
+        for (int i = 0; i < 256; ++i)
+            _Table[i] = i;
+        for (int i = _Table.Length - 1; i > 0; --i)
+        {
+            int r = rng.Next(0, i);
 
-        //    // swap
-        //    int temp = _Table[i];
-        //    _Table[i] = _Table[r];
-        //    _Table[r] = temp;
-        //}
-        //for (int i = 256; i < 512; ++i)
-        //    _Table[i] = _Table[i % 256];
+            // swap
+            int temp = _Table[i];
+            _Table[i] = _Table[r];
+            _Table[r] = temp;
+        }
+        for (int i = 256; i < 512; ++i)
+            _Table[i] = _Table[i % 256];
+    }
 
-        //Random.InitState((int)System.DateTime.Now.Ticks);
+    public static void Restore()
+    {
+        _Table = _KenPerlinHash;
     }
 
     public static double GetNoise(double x, double y)
@@ -60,10 +65,10 @@ public class CustomNoise
         double yr = y - (int)y;
 
         // value for each corner to determine gradient
-        int v0 = _KenPerlinHash[_KenPerlinHash[x0] + y0];
-        int v1 = _KenPerlinHash[_KenPerlinHash[x1] + y0];
-        int v2 = _KenPerlinHash[_KenPerlinHash[x0] + y1];
-        int v3 = _KenPerlinHash[_KenPerlinHash[x1] + y1];
+        int v0 = _Table[_Table[x0] + y0];
+        int v1 = _Table[_Table[x1] + y0];
+        int v2 = _Table[_Table[x0] + y1];
+        int v3 = _Table[_Table[x1] + y1];
 
         Vector2d g0 = Gradient(v0);
         Vector2d g1 = Gradient(v1);
@@ -71,6 +76,7 @@ public class CustomNoise
         Vector2d g3 = Gradient(v3);
 
         // get dot products for each corner
+        // uses dot product between gradient and distance vector from point in cell to corner
         double d0 = Dot(g0.x, g0.y, xr,        yr);
         double d1 = Dot(g1.x, g1.y, xr - 1.0f, yr);
         double d2 = Dot(g2.x, g2.y, xr,        yr - 1.0f);
@@ -157,6 +163,4 @@ public class CustomNoise
         184,  84, 204, 176, 115, 121,  50,  45, 127,   4, 150, 254, 138, 236, 205,  93,
         222, 114,  67,  29,  24,  72, 243, 141, 128, 195,  78,  66, 215,  61, 156, 180,
     };
-
-    private static readonly int _HashMask = 255;
 }

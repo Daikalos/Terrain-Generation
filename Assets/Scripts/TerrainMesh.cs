@@ -9,7 +9,7 @@ public class TerrainMesh : MonoBehaviour
     [Space(5), Header("Terrain")]
     [SerializeField, Range(1, 256)] private int _Width = 8;
     [SerializeField, Range(1, 256)] private int _Height = 8;
-    [SerializeField, Range(0.001f, 8)] private float _TileSize = 1.0f;
+    [SerializeField, Range(0.001f, 8)] private float _CellSize = 1.0f;
 
     [Space(5), Header("Noise")]
     [SerializeField] private CustomNoiseParameters[] _Octaves;
@@ -18,6 +18,7 @@ public class TerrainMesh : MonoBehaviour
     private Vector3[] _Vertices;
     private int[] _Triangles;
     private Color[] _Colors;
+    private float _TileSize;
 
     public int Width => _Width;
     public int Height => _Height;
@@ -26,7 +27,6 @@ public class TerrainMesh : MonoBehaviour
     private void OnValidate()
     {
         CreateMesh();
-        BuildMesh();
         AddNoise();
 
         _Mesh.Clear();
@@ -61,13 +61,20 @@ public class TerrainMesh : MonoBehaviour
             _Mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
         }
 
-        _Vertices = new Vector3[(_Width + 1) * (_Height + 1)];
-        _Triangles = new int[(_Width - 1) * (_Height - 1) * 2 * 3];
-        _Colors = new Color[_Vertices.Length];
+        if (_Vertices == null || _Vertices.Length != (_Width + 1) * (_Height + 1) || _TileSize != _CellSize) // if mesh has been changed
+        {
+            _Vertices = new Vector3[(_Width + 1) * (_Height + 1)];
+            _Triangles = new int[(_Width - 1) * (_Height - 1) * 2 * 3];
+            _Colors = new Color[_Vertices.Length];
+
+            BuildMesh();
+        }
     }
 
     public void BuildMesh()
     {
+        _TileSize = _CellSize;
+
         int triIndex = 0;
         for (int x = 0; x < _Width; ++x)
         {
@@ -75,7 +82,7 @@ public class TerrainMesh : MonoBehaviour
             {
                 int i = x + z * _Width;
 
-                _Vertices[i] = new Vector3(x * _TileSize, 0, -z * _TileSize);
+                _Vertices[i] = new Vector3(x * _CellSize, 0, -z * _CellSize);
 
                 if (x != _Width - 1 && z != _Height - 1)
                 {
@@ -95,22 +102,39 @@ public class TerrainMesh : MonoBehaviour
 
     public void AddNoise()
     {
+        float yMin = float.MaxValue;
+        float yMax = -float.MaxValue;
+
         for (int x = 0; x < _Width; ++x)
         {
             for (int z = 0; z < _Height; ++z)
             {
                 int i = x + z * _Width;
 
-                float yCoord = 0.0f;
+                float yVertex = 0.0f;
+
                 for (int j = 0; j < _Octaves.Length; ++j)
                 {
-                    yCoord += (float)_Octaves[j].PerlinNoise(x, z);
+                    yVertex += (float)_Octaves[j].PerlinNoise(x, z);
                 }
 
-                _Vertices[i] = new Vector3(_Vertices[i].x, yCoord, _Vertices[i].z);
+                if (yVertex > yMax)
+                    yMax = yVertex;
+                if (yVertex < yMin)
+                    yMin = yVertex;
 
-                float posPercentage = Mathf.InverseLerp(0.0f, 1.0f, yCoord);
-                _Colors[i] = new Color(0, posPercentage, 0);
+                _Vertices[i] = new Vector3(_Vertices[i].x, yVertex, _Vertices[i].z);
+            }
+        }
+
+        for (int x = 0; x < _Width; ++x)
+        {
+            for (int z = 0; z < _Height; ++z)
+            {
+                int i = x + z * _Width;
+
+                float posPercentage = Mathf.InverseLerp(yMin, yMax, _Vertices[i].y);
+                _Colors[i] = new Color(0, posPercentage, 1.0f - posPercentage);
             }
         }
     }
@@ -120,7 +144,6 @@ public class TerrainMesh : MonoBehaviour
         _Mesh = null;
 
         CreateMesh();
-        BuildMesh();
         AddNoise();
 
         _Mesh.Clear();
