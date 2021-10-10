@@ -7,6 +7,8 @@ public class HeatmapTexture : MonoBehaviour
 {
     [SerializeField] private RenderTexture _RenderTexture;
     [SerializeField] private Renderer _Renderer;
+    [Space(10)]
+    [SerializeField] private int _Count;
     [SerializeField] private Gradient _HeatmapGradient;
 
     private Texture2D _Texture;
@@ -22,23 +24,23 @@ public class HeatmapTexture : MonoBehaviour
         _Heatmap = new int[_RenderTexture.width * _RenderTexture.height];
         _MaxHeat = -int.MaxValue;
 
-        for (int i = 0, count = 8192; i < count; ++i) // simulate creating new terrain
+        for (int i = 0; i < _Count; ++i) // simulate creating new terrain
         {
             int width = Random.Range(32, 64);
             int height = Random.Range(32, 64);
 
             _YCoords = new float[(width + 1) * (height + 1)];
 
-            int octaveCount = Random.Range(1, 5);
+            int octaveCount = Random.Range(1, 8);
             customNoises = new CustomNoiseParameters[octaveCount];
 
             for (int j = 0; j < octaveCount; ++j) // initialize octaves
             {
                 customNoises[j] = new CustomNoiseParameters
                 {
-                    Position = new Vector2(Random.Range(0, 512), Random.Range(0, 512)),
-                    Amplitude = Random.Range(1, 512),
-                    Frequency = Random.Range(1, 512)
+                    Position = new Vector2(Random.Range(0.0f, 512.0f), Random.Range(0, 512.0f)),
+                    Amplitude = Random.Range(0.01f, 1024.0f),
+                    Frequency = Random.Range(0.01f, 1024.0f)
                 };
             }
 
@@ -56,12 +58,12 @@ public class HeatmapTexture : MonoBehaviour
 
         for (int x = 0; x < width; ++x)
         {
-            for (int y = 0; y < height; ++y)
+            for (int z = 0; z < height; ++z)
             {
                 float noise = 0.0f;
-                for (int j = 0; j < octaveCount; ++j)
+                for (int i = 0; i < octaveCount; ++i)
                 {
-                    noise += customNoises[j].PerlinNoise(x, y);
+                    noise += customNoises[i].PerlinNoise(x, z);
                 }
 
                 if (noise > max)
@@ -69,7 +71,7 @@ public class HeatmapTexture : MonoBehaviour
                 if (noise < min)
                     min = noise;
 
-                _YCoords[x + y * width] = noise;
+                _YCoords[x + z * width] = noise;
             }
         }
     }
@@ -81,9 +83,9 @@ public class HeatmapTexture : MonoBehaviour
 
         for (int x = 0; x < width; ++x)
         {
-            for (int y = 0; y < height; ++y)
+            for (int z = 0; z < height; ++z)
             {
-                int i = x + y * width;
+                int i = x + z * width;
 
                 float vertexProc = Mathf.InverseLerp(min, max, _YCoords[i]);
 
@@ -95,7 +97,7 @@ public class HeatmapTexture : MonoBehaviour
         linearity /= (width * height);
         leniency /= (width * height);
 
-        int pos = (int)(linearity * (_RenderTexture.width - 1)) + (int)(leniency * (_RenderTexture.height - 1)) * _RenderTexture.width;
+        int pos = (int)(linearity * _RenderTexture.width - 1) + (int)(leniency * _RenderTexture.height - 1) * _RenderTexture.width;
 
         if (++_Heatmap[pos] > _MaxHeat)
             _MaxHeat = _Heatmap[pos];
@@ -114,7 +116,7 @@ public class HeatmapTexture : MonoBehaviour
             for (int y = 0; y < _RenderTexture.height; ++y)
             {
                 float color = _Heatmap[x + y * _RenderTexture.width] / (float)_MaxHeat;
-                _Texture.SetPixel(x, y, _HeatmapGradient.Evaluate(color));
+                _Texture.SetPixel(y, (_RenderTexture.height - 1) - x, _HeatmapGradient.Evaluate(color));
             }
         }
         _Texture.Apply();

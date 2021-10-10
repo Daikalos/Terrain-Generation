@@ -5,9 +5,9 @@ using UnityEngine;
 [System.Serializable]
 public class CustomNoiseParameters
 {
-    [SerializeField] public Vector2 _Position;
-    [SerializeField, Range(1, 128)] public float _Amplitude;
-    [SerializeField, Range(1, 128)] public float _Frequency;
+    [SerializeField] private Vector2 _Position;
+    [SerializeField, Min(1)] private float _Amplitude;
+    [SerializeField, Min(1)] private float _Frequency;
 
     public Vector2 Position { get => _Position; set => _Position = value; }
     public float Amplitude { get => _Amplitude; set => _Amplitude = value; }

@@ -29,8 +29,6 @@ public class TerrainMesh : MonoBehaviour
     public int Height => _Height;
     public float TileSize => _TileSize;
 
-    public int Seed { get; set; }
-
     private void OnValidate()
     {
         CreateMesh();

@@ -96,10 +96,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _RenderTexture: {fileID: 8400000, guid: 997b076aaf5f539439cb27d77500a9a1, type: 2}
   _Renderer: {fileID: 330693333887978681}
+  _Count: 8192
   _HeatmapGradient:
     serializedVersion: 2
     key0: {r: 0, g: 0, b: 0, a: 1}
-    key1: {r: 0.1792453, g: 0.1792453, b: 0.1792453, a: 1}
+    key1: {r: 0.26415092, g: 0.26415092, b: 0.26415092, a: 1}
     key2: {r: 0.3207547, g: 0.3207547, b: 0.3207547, a: 1}
     key3: {r: 0.61231756, g: 0.61231756, b: 0.61231756, a: 0}
     key4: {r: 1, g: 1, b: 1, a: 0}
