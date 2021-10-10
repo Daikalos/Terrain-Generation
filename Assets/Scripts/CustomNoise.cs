@@ -54,7 +54,7 @@ public class CustomNoise
             _Table[i] = _Table[r];
             _Table[r] = temp;
         }
-        for (int i = 0; i < _Table.Length; ++i)
+        for (int i = 0; i < _TableSize; ++i)
         {
             _Table[_TableSize + i] = _Table[i];
         }

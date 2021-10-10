@@ -96,7 +96,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _RenderTexture: {fileID: 8400000, guid: 997b076aaf5f539439cb27d77500a9a1, type: 2}
   _Renderer: {fileID: 330693333887978681}
-  _Count: 8192
+  _Samples: 8192
   _HeatmapGradient:
     serializedVersion: 2
     key0: {r: 0, g: 0, b: 0, a: 1}

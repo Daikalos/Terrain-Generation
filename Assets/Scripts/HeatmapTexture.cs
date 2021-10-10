@@ -8,7 +8,7 @@ public class HeatmapTexture : MonoBehaviour
     [SerializeField] private RenderTexture _RenderTexture;
     [SerializeField] private Renderer _Renderer;
     [Space(10)]
-    [SerializeField] private int _Count;
+    [SerializeField] private int _Samples;
     [SerializeField] private Gradient _HeatmapGradient;
 
     private Texture2D _Texture;
@@ -24,7 +24,7 @@ public class HeatmapTexture : MonoBehaviour
         _Heatmap = new int[_RenderTexture.width * _RenderTexture.height];
         _MaxHeat = -int.MaxValue;
 
-        for (int i = 0; i < _Count; ++i) // simulate creating new terrain
+        for (int i = 0; i < _Samples; ++i) // simulate creating new terrain
         {
             int width = Random.Range(32, 64);
             int height = Random.Range(32, 64);
