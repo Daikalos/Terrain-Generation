@@ -8,6 +8,7 @@ public class HeatmapTexture : MonoBehaviour
     [SerializeField] private RenderTexture _RenderTexture;
     [SerializeField] private Renderer _Renderer;
     [Space(10)]
+    [SerializeField] private bool _UseRandomSeeds;
     [SerializeField] private bool _UseAlternative;
     [SerializeField] private int _Samples;
     [SerializeField] private Gradient _HeatmapGradient;
@@ -35,6 +36,9 @@ public class HeatmapTexture : MonoBehaviour
             int octaveCount = Random.Range(1, 8);
             customNoises = new CustomNoiseParameters[octaveCount];
 
+            if (_UseRandomSeeds)
+                CustomNoise.SetSeed(Random.Range(1, int.MaxValue));
+
             for (int j = 0; j < octaveCount; ++j) // initialize octaves
             {
                 customNoises[j] = new CustomNoiseParameters
@@ -52,6 +56,8 @@ public class HeatmapTexture : MonoBehaviour
             else
                 AddToHeatmap(width, height, minValue, maxValue);
         }
+
+        CustomNoise.Restore();
 
         AssignTexture();
     }

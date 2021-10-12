@@ -15,39 +15,48 @@ public struct Vector2d
     public static Vector2d operator +(Vector2d lhs, Vector2d rhs) => new Vector2d(lhs.x + rhs.x, lhs.y + rhs.y);
     public static Vector2d operator -(Vector2d lhs, Vector2d rhs) => new Vector2d(lhs.x - rhs.x, lhs.y - rhs.y);
 
+    public static Vector2d operator /(Vector2d lhs, double rhs) => new Vector2d(lhs.x / rhs, lhs.y / rhs);
+
+    public double Length()
+    {
+        return Math.Sqrt(Math.Pow(x, 2) + Math.Pow(y, 2));
+    }
+
     public Vector2d Normalize()
     {
-        double length = Math.Sqrt(Math.Pow(x, 2) + Math.Pow(y, 2));
-        return new Vector2d(x / length, y / length);
+        return this / Length();
     }
 }
 
 [Serializable]
 public class CustomNoise
 {
-    private static int[] _Table;
+    private static int[] _Table = _KenPerlinHash;
     private static readonly int _TableSize = 256;
     private static readonly int _TableMask = _TableSize - 1;
 
-    private static int _Seed = 0;
+    private static Vector2d[] _Gradients = null;
+
+    private static int _Seed = -1;
 
     public static void SetSeed(int seed)
     {
-        if (seed == _Seed)
+        if (seed == _Seed || seed < 0)
             return;
 
-        _Seed = seed;
-
-        Random rng = new Random(_Seed.GetHashCode());
+        StaticRandom.Seed(_Seed = seed);
 
         _Table = new int[_TableSize * 2];
-        for (int i = 0; i < _TableSize; ++i)
+        _Gradients = new Vector2d[_TableSize];
+
+        for (int i = 0; i < _TableSize; ++i) // set gradient grid and initialize table
         {
+            _Gradients[i] = new Vector2d(2 * StaticRandom.RandomDouble() - 1, 2 * StaticRandom.RandomDouble() - 1).Normalize();
             _Table[i] = i;
         }
-        for (int i = _TableSize - 1; i > 0; --i)
+        for (int i = _TableSize - 1; i > 0; --i) // Fisher-Yates shuffle
         {
-            int r = rng.Next(0, i + 1);
+            int r = StaticRandom.RandomNumber(0, i + 1);
 
             // swap
             int temp = _Table[i];
@@ -58,12 +67,15 @@ public class CustomNoise
         {
             _Table[_TableSize + i] = _Table[i];
         }
+
+        StaticRandom.Restore();
     }
 
     public static void Restore()
     {
         _Table = _KenPerlinHash;
-        _Seed = 0;
+        _Gradients = null;
+        _Seed = -1;
     }
 
     public static double GetNoise(double x, double y)
@@ -116,15 +128,27 @@ public class CustomNoise
     /// </summary>
     private static Vector2d Gradient(int hash)
     {
-        switch (hash & 3)
+        Vector2d Preset()
         {
-            case 0: return new Vector2d( 1.0,  1.0).Normalize();
-            case 1: return new Vector2d(-1.0,  1.0).Normalize();
-            case 2: return new Vector2d( 1.0, -1.0).Normalize();
-            case 3: return new Vector2d(-1.0, -1.0).Normalize();
-            default: 
-                return new Vector2d(0, 0);
+            switch (hash & 3)
+            {
+                case 0: return new Vector2d(1.0, 1.0).Normalize();
+                case 1: return new Vector2d(-1.0, 1.0).Normalize();
+                case 2: return new Vector2d(1.0, -1.0).Normalize();
+                case 3: return new Vector2d(-1.0, -1.0).Normalize();
+                default:
+                    return new Vector2d(0, 0);
+            }
         }
+        Vector2d GradientGrid()
+        {
+            return _Gradients[hash];
+        }
+
+        if (_Gradients == null)
+            return Preset();
+        else
+            return GradientGrid();
     }
 
     /// <summary>
@@ -137,6 +161,11 @@ public class CustomNoise
 
     private static double Lerp(double a, double b, double t)
     {
+        if (t < 0.0)
+            return a;
+        else if (t > 1.0)
+            return b;
+        
         return t * (b - a) + a;
     }
 

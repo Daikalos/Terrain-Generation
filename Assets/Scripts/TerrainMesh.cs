@@ -14,7 +14,7 @@ public class TerrainMesh : MonoBehaviour
 
     [Header("Seed")]
     [SerializeField] private bool _UseSeed = false;
-    [SerializeField] private int _Seed;
+    [SerializeField, Min(0)] private int _Seed;
 
     [Space(5), Header("Noise")]
     [SerializeField] private CustomNoiseParameters[] _Octaves;
