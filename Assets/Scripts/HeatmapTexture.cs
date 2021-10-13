@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
@@ -28,28 +26,28 @@ public class HeatmapTexture : MonoBehaviour
 
         for (int i = 0; i < _Samples; ++i) // simulate creating new terrain
         {
-            int width = Random.Range(32, 64);
-            int height = Random.Range(32, 64);
+            int width = StaticRandom.Range(48, 128);
+            int height = StaticRandom.Range(48, 128);
 
             _YCoords = new float[(width + 1) * (height + 1)];
 
-            int octaveCount = Random.Range(1, 8);
+            int octaveCount = StaticRandom.Range(1, 5);
             customNoises = new CustomNoiseParameters[octaveCount];
 
             if (_UseRandomSeeds)
-                CustomNoise.SetSeed(Random.Range(1, int.MaxValue));
+                CustomNoise.SetSeed(StaticRandom.Range(0, int.MaxValue));
 
             for (int j = 0; j < octaveCount; ++j) // initialize octaves
             {
                 customNoises[j] = new CustomNoiseParameters
                 {
-                    Position = new Vector2(Random.Range(0.0f, 512.0f), Random.Range(0, 512.0f)),
-                    Amplitude = Random.Range(0.01f, 1024.0f),
-                    Frequency = Random.Range(0.01f, 1024.0f)
+                    Position = new Vector2(StaticRandom.Range(-512f, 512f), StaticRandom.Range(-512f, 512f)),
+                    Amplitude = StaticRandom.Range(-512f, 512f),
+                    Frequency = StaticRandom.Range(-512f, 512f)
                 };
             }
 
-            SimulateTerrain(octaveCount, width, height, out float minValue, out float maxValue);
+            SimulateTerrain(width, height, out float minValue, out float maxValue);
 
             if (_UseAlternative)
                 AddToHeatmapAlternative(width, height, minValue, maxValue);
@@ -62,7 +60,7 @@ public class HeatmapTexture : MonoBehaviour
         AssignTexture();
     }
 
-    private void SimulateTerrain(int octaveCount, int width, int height, out float min, out float max)
+    private void SimulateTerrain(int width, int height, out float min, out float max)
     {
         min = float.MaxValue;
         max = -float.MaxValue;
@@ -72,7 +70,7 @@ public class HeatmapTexture : MonoBehaviour
             for (int z = 0; z < height; ++z)
             {
                 float noise = 0.0f;
-                for (int i = 0; i < octaveCount; ++i)
+                for (int i = 0; i < customNoises.Length; ++i)
                 {
                     noise += customNoises[i].PerlinNoise(x, z);
                 }
@@ -206,7 +204,7 @@ public class HeatmapTexture : MonoBehaviour
         {
             for (int y = 0; y < _RenderTexture.height; ++y)
             {
-                float color = _Heatmap[x + y * _RenderTexture.width] / 7.0f;
+                float color = _Heatmap[x + y * _RenderTexture.width] / 8.0f;
                 _Texture.SetPixel(y, (_RenderTexture.height - 1) - x, _HeatmapGradient.Evaluate(color));
             }
         }

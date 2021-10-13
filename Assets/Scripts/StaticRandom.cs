@@ -9,17 +9,7 @@ class StaticRandom
     private static Random Random = new Random();
     private static readonly object SyncLock = new object();
 
-    public static void Seed(int seed)
-    {
-        Random = new Random(seed.GetHashCode());
-    }
-
-    public static void Restore()
-    {
-        Random = new Random();
-    }
-
-    public static int RandomNumber(int min, int max)
+    public static int Range(int min, int max)
     {
         lock (SyncLock) // synchronize
         {
@@ -27,11 +17,19 @@ class StaticRandom
         }
     }
 
-    public static double RandomDouble()
+    public static float Range(float min, float max)
     {
         lock (SyncLock)
         {
-            return Random.NextDouble();
+            return (float)Random.NextDouble() * (max - min) + min;
+        }
+    }
+
+    public static double Range(double min, double max)
+    {
+        lock (SyncLock)
+        {
+            return Random.NextDouble() * (max - min) + min;
         }
     }
 }

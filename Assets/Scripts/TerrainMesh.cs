@@ -119,21 +119,18 @@ public class TerrainMesh : MonoBehaviour
         {
             for (int z = 0; z < _Height; ++z)
             {
-                int i = x + z * _Width;
-
-                float yVertex = 0.0f;
-
+                float yPos = 0.0f;
                 for (int j = 0; j < _Octaves.Length; ++j)
                 {
-                    yVertex += (float)_Octaves[j].PerlinNoise(x, z);
+                    yPos += (float)_Octaves[j].PerlinNoise(x, z);
                 }
 
-                if (yVertex > yMax)
-                    yMax = yVertex;
-                if (yVertex < yMin)
-                    yMin = yVertex;
+                if (yPos > yMax)
+                    yMax = yPos;
+                if (yPos < yMin)
+                    yMin = yPos;
 
-                _Vertices[i] = new Vector3(_Vertices[i].x, yVertex, _Vertices[i].z);
+                _Vertices[x + z * _Width].y = yPos;
             }
         }
 

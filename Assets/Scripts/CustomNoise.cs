@@ -40,19 +40,19 @@ public class CustomNoise
         if (seed == _Seed || seed < 0)
             return;
 
-        StaticRandom.Seed(_Seed = seed);
+        Random rng = new Random(seed.GetHashCode());
 
         _Table = new int[_TableSize * 2];
         _Gradients = new Vector2d[_TableSize];
 
         for (int i = 0; i < _TableSize; ++i) // set gradient grid and initialize table
         {
-            _Gradients[i] = new Vector2d(2 * StaticRandom.RandomDouble() - 1, 2 * StaticRandom.RandomDouble() - 1).Normalize();
+            _Gradients[i] = new Vector2d(2 * rng.NextDouble() - 1, 2 * rng.NextDouble() - 1).Normalize();
             _Table[i] = i;
         }
         for (int i = _TableSize - 1; i > 0; --i) // Fisher-Yates shuffle
         {
-            int r = StaticRandom.RandomNumber(0, i + 1);
+            int r = rng.Next(0, i + 1);
 
             // swap
             int temp = _Table[i];
@@ -63,8 +63,6 @@ public class CustomNoise
         {
             _Table[_TableSize + i] = _Table[i];
         }
-
-        StaticRandom.Restore();
     }
 
     public static void Restore()
@@ -107,10 +105,10 @@ public class CustomNoise
 
         // get dot products for each corner
         // uses dot product between gradient and distance vector from point in cell to corner
-        double d0 = Dot(g0.x, g0.y, p0.x, p0.y);
-        double d1 = Dot(g1.x, g1.y, p1.x, p1.y);
-        double d2 = Dot(g2.x, g2.y, p2.x, p2.y);
-        double d3 = Dot(g3.x, g3.y, p3.x, p3.y);
+        double d0 = Dot(g0, p0);
+        double d1 = Dot(g1, p1);
+        double d2 = Dot(g2, p2);
+        double d3 = Dot(g3, p3);
 
         double xf = Fade(xr);
         double yf = Fade(yr);
@@ -161,9 +159,9 @@ public class CustomNoise
         return t * (b - a) + a;
     }
 
-    private static double Dot(double x0, double y0, double x1, double y1)
+    private static double Dot(Vector2d v0, Vector2d v1)
     {
-        return x0 * x1 + y0 * y1;
+        return v0.x * v1.x + v0.y * v1.y;
     }
 
     /// <summary>

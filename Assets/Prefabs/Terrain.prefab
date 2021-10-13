@@ -96,7 +96,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _Width: 256
   _Height: 256
-  _CellSize: 1.25
+  _CellSize: 1
   _ColorGradient:
     serializedVersion: 2
     key0: {r: 0.8396226, g: 0.8396226, b: 0.8396226, a: 1}
@@ -126,18 +126,12 @@ MonoBehaviour:
     m_Mode: 0
     m_NumColorKeys: 8
     m_NumAlphaKeys: 2
-  _UseSeed: 0
-  _Seed: 0
+  _UseSeed: 1
+  _Seed: 2313
   _Octaves:
-  - _Position: {x: 0, y: 0}
-    _Amplitude: 111.6
-    _Frequency: 128
-  - _Position: {x: 3.32, y: 11.27}
-    _Amplitude: 51.4
-    _Frequency: 58.4
-  - _Position: {x: 0, y: 0}
-    _Amplitude: 4
-    _Frequency: 16
-  - _Position: {x: 0, y: 0}
-    _Amplitude: 40.9
-    _Frequency: 94.3
+  - _Position: {x: 20.9, y: 11.27}
+    _Amplitude: 93.7
+    _Frequency: 93.2
+  - _Position: {x: 2.3, y: 0}
+    _Amplitude: 2.5
+    _Frequency: 11.55
