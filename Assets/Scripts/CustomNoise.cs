@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 
 [Serializable]
 public struct Vector2d
@@ -14,7 +12,6 @@ public struct Vector2d
 
     public static Vector2d operator +(Vector2d lhs, Vector2d rhs) => new Vector2d(lhs.x + rhs.x, lhs.y + rhs.y);
     public static Vector2d operator -(Vector2d lhs, Vector2d rhs) => new Vector2d(lhs.x - rhs.x, lhs.y - rhs.y);
-
     public static Vector2d operator /(Vector2d lhs, double rhs) => new Vector2d(lhs.x / rhs, lhs.y / rhs);
 
     public double Length()
@@ -28,7 +25,6 @@ public struct Vector2d
     }
 }
 
-[Serializable]
 public class CustomNoise
 {
     private static int[] _Table = _KenPerlinHash;
@@ -81,15 +77,16 @@ public class CustomNoise
     public static double GetNoise(double x, double y)
     {
         // get corners of the cell
-        // & _HashMask to stay in range of gradient grid
-        int x0 = (int)x & _TableMask;
-        int y0 = (int)y & _TableMask;
+        // & _HashMask to stay in range of table size
+        // Floor to handle negative coordinates
+        int x0 = (int)Math.Floor(x) & _TableMask;
+        int y0 = (int)Math.Floor(y) & _TableMask;
         int x1 = x0 + 1;
         int y1 = y0 + 1;
 
         // get relative coordinates within cell
-        double xr = x - (int)x; 
-        double yr = y - (int)y;
+        double xr = x - (int)Math.Floor(x); 
+        double yr = y - (int)Math.Floor(y);
 
         // value for each corner to determine gradient
         int v0 = _Table[_Table[x0] + y0];
@@ -161,11 +158,6 @@ public class CustomNoise
 
     private static double Lerp(double a, double b, double t)
     {
-        if (t < 0.0)
-            return a;
-        else if (t > 1.0)
-            return b;
-        
         return t * (b - a) + a;
     }
 
