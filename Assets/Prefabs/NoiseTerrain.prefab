@@ -97,6 +97,12 @@ MonoBehaviour:
   _Width: 512
   _Height: 512
   _CellSize: 1
+  _MountainRidge:
+    Min: 0
+    Max: 0.09917355
+  _MountainEdge:
+    Min: 0.09917355
+    Max: 0.3107438
   _ColorGradient:
     serializedVersion: 2
     key0: {r: 0.8396226, g: 0.8396226, b: 0.8396226, a: 1}
@@ -130,8 +136,8 @@ MonoBehaviour:
   _Seed: 2313
   _Octaves:
   - _Position: {x: 20.9, y: 11.27}
-    _Amplitude: 93.7
-    _Frequency: 93.2
+    _Amplitude: 222
+    _Frequency: 200
   - _Position: {x: 2.3, y: 0}
     _Amplitude: 2.5
     _Frequency: 11.55

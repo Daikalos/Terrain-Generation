@@ -6,8 +6,8 @@ using UnityEngine;
 public class CustomNoiseParameters
 {
     [SerializeField] private Vector2 _Position;
-    [SerializeField, Range(-128, 128)] private float _Amplitude;
-    [SerializeField, Range(-128, 128)] private float _Frequency;
+    [SerializeField, Range(-512, 512)] private float _Amplitude;
+    [SerializeField, Range(-512, 512)] private float _Frequency;
 
     public Vector2 Position { get => _Position; set => _Position = value; }
     public float Amplitude { get => _Amplitude; set => _Amplitude = value; }

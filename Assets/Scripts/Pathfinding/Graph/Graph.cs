@@ -26,42 +26,36 @@ public class Graph
     }
     private void AddVertices()
     {
-        for (int z = 0; z < Height; ++z) // Add all vertices
+        for (int x = 0; x < Width; ++x) // Add all vertices
         {
-            for (int x = 0; x < Width; ++x)
+            for (int z = 0; z < Height; ++z)
             {
-                _Vertices[x + z * Width] = new Vertex(x, 0.0f, z);
+                _Vertices[x + z * Width] = new Vertex(new Vector3(x, 0.0f, z), new Vector2Int(x, z));
             }
         }
     }
     private void AddEdges()
     {
-        for (int y = 0; y < Height; ++y) // Add all edges
+        for (int x = 0; x < Width; ++x) // Add all edges
         {
-            for (int x = 0; x < Width; ++x)
+            for (int z = 0; z < Height; ++z)
             {
-                for (int i = -1; i <= 1; i += 2)
+                for (int i = -1; i <= 1; ++i)
                 {
-                    if (WithinBoard(x + i, y))
+                    for (int j = -1; j <= 1; ++j)
                     {
-                        Vertex vertex = AtPos(x, y);
-                        Vertex neighbour = AtPos(x + i, y);
+                        if (i == 0 && j == 0)
+                            continue;
 
-                        vertex.AddNeighbour(neighbour);
+                        if (WithinBoard(x + i, z + j))
+                        {
+                            Vertex vertex = AtPos(x, z);
+                            Vertex neighbour = AtPos(x + i, z + j);
 
-                        new Edge(vertex, neighbour, DiagonalDistance(vertex, neighbour));
-                    }
-                }
-                for (int j = -1; j <= 1; j += 2)
-                {
-                    if (WithinBoard(x, y + j))
-                    {
-                        Vertex vertex = AtPos(x, y);
-                        Vertex neighbour = AtPos(x, y + j);
+                            vertex.AddNeighbour(neighbour);
 
-                        vertex.AddNeighbour(neighbour);
-
-                        new Edge(vertex, neighbour, DiagonalDistance(vertex, neighbour));
+                            new Edge(vertex, neighbour, DiagonalDistance(vertex, neighbour));
+                        }
                     }
                 }
             }
@@ -71,12 +65,12 @@ public class Graph
     public void SetVertices(Vector3[] vertices)
     {
         _Vertices = new Vertex[Width * Height];
-        for (int y = 0; y < Height; ++y) // Add all vertices
+        for (int x = 0; x < Width; ++x) // Add all vertices
         {
-            for (int x = 0; x < Width; ++x)
+            for (int z = 0; z < Height; ++z)
             {
-                int i = x + y * Width;
-                _Vertices[i] = new Vertex(vertices[i]);
+                int i = x + z * Width;
+                _Vertices[i] = new Vertex(vertices[i], new Vector2Int(x, z));
             }
         }
         AddEdges();
@@ -91,7 +85,7 @@ public class Graph
 
         Vertex vertex = _Vertices[x + z * Width];
 
-        vertex.Position.y = position.y;
+        vertex.WorldPosition.y = position.y;
     }
 
     public void InitializeVertices()
@@ -106,6 +100,9 @@ public class Graph
 
     public Vertex AtPos(int x, int y)
     {
+        if (!WithinBoard(x, y))
+            return null;
+
         return _Vertices[x + y * Width];
     }
     public Vertex AtPos(Vector2Int pos)
@@ -123,19 +120,19 @@ public class Graph
     }
     public bool WithinBoard(Vertex vertex)
     {
-        return WithinBoard(Mathf.FloorToInt(vertex.Position.x), Mathf.FloorToInt(vertex.Position.z));
+        return WithinBoard(vertex.LocalPosition);
     }
 
     public static float ManhattanDistance(Vertex from, Vertex to)
     {
-        return Math.Abs(to.Position.x - from.Position.x) +
-               Math.Abs(to.Position.y - from.Position.y) +
-               Math.Abs(to.Position.z - from.Position.z);
+        return Math.Abs(to.WorldPosition.x - from.WorldPosition.x) +
+               Math.Abs(to.WorldPosition.y - from.WorldPosition.y) +
+               Math.Abs(to.WorldPosition.z - from.WorldPosition.z);
     }
     public static float DiagonalDistance(Vertex from, Vertex to)
     {
-        return (float)Math.Sqrt(Math.Pow(to.Position.x - from.Position.x, 2) +
-                                Math.Pow(to.Position.y - from.Position.y, 2) +
-                                Math.Pow(to.Position.z - from.Position.z, 2));
+        return (float)Math.Sqrt(Math.Pow(to.WorldPosition.x - from.WorldPosition.x, 2) +
+                                Math.Pow(to.WorldPosition.y - from.WorldPosition.y, 2) +
+                                Math.Pow(to.WorldPosition.z - from.WorldPosition.z, 2));
     }
 }

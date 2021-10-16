@@ -44,6 +44,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _Terrain: {fileID: 0}
-  _RiverAgents: 0
-  _ErosionAgents: 0
-  _FlattenAgents: 0
+  _ErosionAgentTotal: 20000
+  _ErosionAgentTokens: 10000
+  _PlainAgentsTotal: 0
+  _PlainAgentTokens: 0
+  _BeachAgentTotal: 0
+  _BeachAgentTokens: 0
+  _RiverAgentTotal: 0
+  _RiverAgentTokens: 0
+  _ErosionParams:
+    _Lifetime: 500
+    _Leniency: 0.3
+    _InverseStrength: 4
+    _Area: 4
+  _PlainsParams:
+    _Lifetime: 0
+  _BeachParams:
+    _Lifetime: 0
+  _RiverParams:
+    _Lifetime: 0

@@ -14,8 +14,12 @@ public class AgentSystemInspector : Editor
 
         AgentSystem agentSystem = (AgentSystem)target;
 
-        GUILayout.Space(10);
+        GUILayout.Space(20);
 
+        if (GUILayout.Button("Reset Terrain"))
+        {
+            agentSystem.ResetTerrain();
+        }
         if (GUILayout.Button("Execute"))
         {
             agentSystem.Execute();

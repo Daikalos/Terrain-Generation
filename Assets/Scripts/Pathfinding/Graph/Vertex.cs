@@ -7,7 +7,8 @@ public class Vertex
     public List<Edge> Edges { get; private set; }
 
     public Vertex Parent;
-    public Vector3 Position;
+    public Vector3 WorldPosition;
+    public Vector2Int LocalPosition;
 
     public bool IsVisited { get; set; }
 
@@ -17,9 +18,10 @@ public class Vertex
 
     public int EdgeCount => Edges.Count;
 
-    public Vertex(float x, float y, float z)
+    public Vertex(Vector3 worldPos, Vector2Int localPos)
     {
-        Position = new Vector3(x, y, z);
+        WorldPosition = worldPos;
+        LocalPosition = localPos;
 
         Neighbours = new List<Vertex>();
         Edges = new List<Edge>();
@@ -29,7 +31,6 @@ public class Vertex
         G = float.PositiveInfinity;
         H = float.PositiveInfinity;
     }
-    public Vertex(Vector3 position) : this(position.x, position.y, position.z) { }
 
     public void ClearNeighbours()
     {

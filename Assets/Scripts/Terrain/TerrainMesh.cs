@@ -173,4 +173,18 @@ public class TerrainMesh : MonoBehaviour
         _Mesh.colors = _Colors;
         _Mesh.RecalculateNormals();
     }
+
+    public void Generate(Vector3[] vertices)
+    {
+        _Mesh = null;
+
+        CreateMesh();
+        AddNoise();
+
+        _Mesh.Clear();
+        _Mesh.vertices = vertices;
+        _Mesh.triangles = _Triangles;
+        _Mesh.colors = _Colors;
+        _Mesh.RecalculateNormals();
+    }
 }

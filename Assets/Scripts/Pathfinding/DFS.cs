@@ -34,6 +34,8 @@ public static class DFS
                         open.Push(neighbour);
                 }
             }
+
+            ++steps;
         }
 
         return new List<Vertex>(); // Return empty path if none is found

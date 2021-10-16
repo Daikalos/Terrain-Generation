@@ -6,7 +6,8 @@ using UnityEngine;
 [Serializable]
 public abstract class Agent : ICloneable
 {
-    public int tokens = 0;
+    [SerializeField]
+    protected int _Lifetime = 0;
 
     protected Graph _Graph;
 
