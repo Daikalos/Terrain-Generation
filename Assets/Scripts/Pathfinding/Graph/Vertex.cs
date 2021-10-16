@@ -6,8 +6,8 @@ public class Vertex
     public List<Vertex> Neighbours { get; private set; }
     public List<Edge> Edges { get; private set; }
 
-    public Vertex Parent { get; set; }
-    public Vector3 Position { get; private set; }
+    public Vertex Parent;
+    public Vector3 Position;
 
     public bool IsVisited { get; set; }
 
@@ -30,11 +30,6 @@ public class Vertex
         H = float.PositiveInfinity;
     }
     public Vertex(Vector3 position) : this(position.x, position.y, position.z) { }
-
-    public void SetPosition(Vector3 position)
-    {
-        Position = position;
-    }
 
     public void ClearNeighbours()
     {

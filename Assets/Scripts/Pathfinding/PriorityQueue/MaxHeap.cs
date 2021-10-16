@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 
-class MaxHeap<T> : PriorityQueue<T>
+public class MaxHeap<T> : PriorityQueue<T>
 {
     public override void Enqueue(T Element, float priority)
     {

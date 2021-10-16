@@ -2,17 +2,21 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BeachAgent : MonoBehaviour
+[System.Serializable]
+public class BeachAgent : Agent
 {
-    // Start is called before the first frame update
-    void Start()
+
+
+    public override void Initialize(ref Graph graph)
     {
-        
+        base.Initialize(ref graph);
+
     }
 
-    // Update is called once per frame
-    void Update()
+    public override bool Update()
     {
-        
+
+
+        return true;
     }
 }

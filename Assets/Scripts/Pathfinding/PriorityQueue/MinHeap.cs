@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 
-class MinHeap<T> : PriorityQueue<T>
+public class MinHeap<T> : PriorityQueue<T>
 {
     public override void Enqueue(T Element, float priority)
     {

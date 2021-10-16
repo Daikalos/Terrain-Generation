@@ -1,18 +1,28 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Agent : MonoBehaviour
+[Serializable]
+public abstract class Agent : ICloneable
 {
-    // Start is called before the first frame update
-    void Start()
+    public int tokens = 0;
+
+    protected Graph _Graph;
+
+    public virtual void Initialize(ref Graph graph)
     {
-        
+        _Graph = graph;
     }
 
-    // Update is called once per frame
-    void Update()
+    /// <summary>
+    /// update the agent
+    /// </summary>
+    /// <returns>if completed</returns>
+    public abstract bool Update();
+
+    public object Clone()
     {
-        
+        return this.MemberwiseClone();
     }
 }

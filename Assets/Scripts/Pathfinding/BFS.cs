@@ -2,7 +2,7 @@
 
 public static class BFS
 {
-    public static List<Vertex> PathTo(Graph graph, Vertex start, Vertex goal)
+    public static List<Vertex> PathTo(Graph graph, Vertex start, Vertex goal, int maxSteps = int.MaxValue)
     {
         Queue<Vertex> open = new Queue<Vertex>();
 
@@ -10,15 +10,16 @@ public static class BFS
 
         Vertex current = start;
         current.IsVisited = true;
-
         open.Enqueue(current);
+
+        int steps = 0;
 
         while (open.Count > 0)
         {
             current = open.Dequeue();
 
-            if (current.Equals(goal))
-                return FindPath(start, goal);
+            if (current.Equals(goal) || steps >= maxSteps)
+                return FindPath(start, current);
 
             foreach (Edge edge in current.Edges)
             {
@@ -33,6 +34,8 @@ public static class BFS
                         open.Enqueue(neighbour);
                 }
             }
+
+            ++steps;
         }
 
         return new List<Vertex>(); // Return empty path if none is found

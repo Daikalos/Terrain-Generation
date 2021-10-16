@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-abstract class PriorityQueue<T> // Min Heap
+public abstract class PriorityQueue<T> // Min Heap
 {
     protected class Element
     {

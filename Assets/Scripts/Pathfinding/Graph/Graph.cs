@@ -26,11 +26,11 @@ public class Graph
     }
     private void AddVertices()
     {
-        for (int y = 0; y < Height; ++y) // Add all vertices
+        for (int z = 0; z < Height; ++z) // Add all vertices
         {
             for (int x = 0; x < Width; ++x)
             {
-                _Vertices[x + y * Width] = new Vertex(x, y, 0.0f);
+                _Vertices[x + z * Width] = new Vertex(x, 0.0f, z);
             }
         }
     }
@@ -40,22 +40,28 @@ public class Graph
         {
             for (int x = 0; x < Width; ++x)
             {
-                for (int i = -1; i <= 1; ++i)
+                for (int i = -1; i <= 1; i += 2)
                 {
-                    for (int j = -1; j <= 1; ++j)
+                    if (WithinBoard(x + i, y))
                     {
-                        if (j == 0 && i == 0)
-                            continue;
+                        Vertex vertex = AtPos(x, y);
+                        Vertex neighbour = AtPos(x + i, y);
 
-                        if (WithinBoard(x + j, y + i))
-                        {
-                            Vertex vertex = AtPos(x, y);
-                            Vertex neighbour = AtPos(x + j, y + i);
+                        vertex.AddNeighbour(neighbour);
 
-                            vertex.AddNeighbour(neighbour);
+                        new Edge(vertex, neighbour, DiagonalDistance(vertex, neighbour));
+                    }
+                }
+                for (int j = -1; j <= 1; j += 2)
+                {
+                    if (WithinBoard(x, y + j))
+                    {
+                        Vertex vertex = AtPos(x, y);
+                        Vertex neighbour = AtPos(x, y + j);
 
-                            new Edge(vertex, neighbour, DiagonalDistance(vertex, neighbour));
-                        }
+                        vertex.AddNeighbour(neighbour);
+
+                        new Edge(vertex, neighbour, DiagonalDistance(vertex, neighbour));
                     }
                 }
             }
@@ -85,21 +91,7 @@ public class Graph
 
         Vertex vertex = _Vertices[x + z * Width];
 
-        vertex.SetPosition(new Vector3(x, position.y, z));
-        foreach (Edge e0 in vertex.Edges)
-        {
-            float distance = DiagonalDistance(vertex, e0.To);
-
-            e0.Weight = distance;
-            foreach (Edge e1 in e0.To.Edges)
-            {
-                if (e1.To == vertex)
-                {
-                    e1.Weight = distance;
-                    break;
-                }
-            }
-        }
+        vertex.Position.y = position.y;
     }
 
     public void InitializeVertices()

@@ -2,7 +2,7 @@
 
 public static class DFS
 {
-    public static List<Vertex> PathTo(Graph graph, Vertex start, Vertex goal)
+    public static List<Vertex> PathTo(Graph graph, Vertex start, Vertex goal, int maxSteps = int.MaxValue)
     {
         Stack<Vertex> open = new Stack<Vertex>();
 
@@ -10,15 +10,16 @@ public static class DFS
 
         Vertex current = start;
         current.IsVisited = true;
-
         open.Push(current);
+
+        int steps = 0;
 
         while (open.Count > 0)
         {
             current = open.Pop();
 
-            if (current.Equals(goal))
-                return FindPath(start, goal);
+            if (current.Equals(goal) || steps >= maxSteps)
+                return FindPath(start, current);
 
             foreach (Edge edge in current.Edges)
             {
