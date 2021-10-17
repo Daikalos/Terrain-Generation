@@ -35,7 +35,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &3528693776308185682
 MeshFilter:
-  m_ObjectHideFlags: 2
+  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -43,7 +43,7 @@ MeshFilter:
   m_Mesh: {fileID: 0}
 --- !u!23 &3528693776308185683
 MeshRenderer:
-  m_ObjectHideFlags: 2
+  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -96,13 +96,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _Width: 512
   _Height: 512
+  _MaxWidth: 512
+  _MaxHeight: 512
   _CellSize: 1
-  _MountainRidge:
+  MountainsRange:
     Min: 0
-    Max: 0.09917355
-  _MountainEdge:
-    Min: 0.09917355
-    Max: 0.3107438
+    Max: 0.39772725
+  PlainsRange:
+    Min: 0.34917358
+    Max: 0.60227275
+  BeachesRange:
+    Min: 0.59917355
+    Max: 0.6456611
+  OceansRange:
+    Min: 0.6456611
+    Max: 1
   _ColorGradient:
     serializedVersion: 2
     key0: {r: 0.8396226, g: 0.8396226, b: 0.8396226, a: 1}
@@ -133,11 +141,62 @@ MonoBehaviour:
     m_NumColorKeys: 8
     m_NumAlphaKeys: 2
   _UseSeed: 1
-  _Seed: 2313
+  _Seed: 1
   _Octaves:
   - _Position: {x: 20.9, y: 11.27}
-    _Amplitude: 222
-    _Frequency: 200
+    _Amplitude: 146
+    _Frequency: 127
   - _Position: {x: 2.3, y: 0}
-    _Amplitude: 2.5
-    _Frequency: 11.55
+    _Amplitude: -15
+    _Frequency: 73
+  Mountains:
+  - {x: 286, y: 202}
+  - {x: 286, y: 202}
+  - {x: 37, y: 264}
+  - {x: 57, y: 71}
+  - {x: 92, y: 54}
+  - {x: 65, y: 87}
+  - {x: 65, y: 298}
+  - {x: 0, y: 0}
+  - {x: 100, y: 407}
+  - {x: 100, y: 407}
+  - {x: 100, y: 131}
+  - {x: 0, y: 92}
+  - {x: 12, y: 131}
+  - {x: 0, y: 284}
+  - {x: 12, y: 407}
+  - {x: 12, y: 407}
+  - {x: 12, y: 407}
+  - {x: 72, y: 407}
+  - {x: 37, y: 407}
+  - {x: 10, y: 407}
+  - {x: 10, y: 33}
+  - {x: 0, y: 0}
+  - {x: 186, y: 315}
+  - {x: 373, y: 258}
+  - {x: 0, y: 0}
+  - {x: 0, y: 0}
+  - {x: 374, y: 284}
+  - {x: 374, y: 284}
+  - {x: 371, y: 287}
+  - {x: 363, y: 506}
+  - {x: 412, y: 58}
+  - {x: 217, y: 400}
+  - {x: 226, y: 316}
+  - {x: 124, y: 412}
+  - {x: 115, y: 413}
+  - {x: 117, y: 412}
+  - {x: 117, y: 412}
+  - {x: 120, y: 154}
+  - {x: 121, y: 153}
+  - {x: 361, y: 390}
+  - {x: 361, y: 390}
+  - {x: 122, y: 156}
+  - {x: 108, y: 403}
+  - {x: 110, y: 405}
+  - {x: 109, y: 404}
+  - {x: 112, y: 407}
+  - {x: 112, y: 409}
+  Plains: []
+  Beaches: []
+  Oceans: []

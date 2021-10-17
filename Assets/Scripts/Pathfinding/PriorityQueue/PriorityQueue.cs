@@ -45,6 +45,11 @@ public abstract class PriorityQueue<T> // Min Heap
         return false;
     }
 
+    public float Priority(int index)
+    {
+        return priorityQueue[index].Priority;
+    }
+
     protected void Swap(int first, int second)
     {
         Element tmp = priorityQueue[first];

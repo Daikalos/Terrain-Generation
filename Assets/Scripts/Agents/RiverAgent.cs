@@ -5,11 +5,11 @@ using UnityEngine;
 [System.Serializable]
 public class RiverAgent : Agent
 {
+    public RiverAgent(ref Graph graph, TerrainMesh terrain, AgentParams agentParams) : base(ref graph, terrain, agentParams) 
+    { }
 
-
-    public override void Initialize(ref Graph graph)
+    public override void Initialize()
     {
-        base.Initialize(ref graph);
 
     }
 

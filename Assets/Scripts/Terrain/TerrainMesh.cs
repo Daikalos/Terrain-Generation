@@ -13,14 +13,22 @@ public class TerrainMesh : MonoBehaviour
     private int _Width = 8;
     [SerializeField, Range(1, 512)] 
     private int _Height = 8;
+    [SerializeField, Range(1, 512)]
+    private int _MaxWidth = 512;
+    [SerializeField, Range(1, 512)]
+    private int _MaxHeight = 512;
     [SerializeField, Range(0.001f, 8)] 
     private float _CellSize = 1.0f;
 
     [Space(10)]
-    [SerializeField, MinMaxRange(0.0f, 1.0f)] 
-    private MinMaxFloat _MountainRidge;
-    [SerializeField, MinMaxRange(0.0f, 1.0f)]
-    private MinMaxFloat _MountainEdge;
+    [MinMaxRange(0.0f, 1.0f)]
+    public MinMaxFloat MountainsRange;
+    [MinMaxRange(0.0f, 1.0f)]
+    public MinMaxFloat PlainsRange;
+    [MinMaxRange(0.0f, 1.0f)]
+    public MinMaxFloat BeachesRange;
+    [MinMaxRange(0.0f, 1.0f)]
+    public MinMaxFloat OceansRange;
 
     [Space(10)]
     [SerializeField] 
@@ -44,6 +52,15 @@ public class TerrainMesh : MonoBehaviour
     private float _Min, _Max;
     private float _TileSize;
 
+    [HideInInspector]
+    public List<Vector2Int> Mountains;
+    [HideInInspector]
+    public List<Vector2Int> Plains;
+    [HideInInspector]
+    public List<Vector2Int> Beaches;
+    [HideInInspector]
+    public List<Vector2Int> Oceans;
+
     public Mesh Mesh => _Mesh;
 
     public int Width => _Width;
@@ -51,12 +68,6 @@ public class TerrainMesh : MonoBehaviour
     public float Min => _Min;
     public float Max => _Max;
     public float TileSize => _TileSize;
-
-    private void OnValidate()
-    {
-        GetComponent<MeshRenderer>().hideFlags = HideFlags.HideInInspector;
-        GetComponent<MeshFilter>().hideFlags = HideFlags.HideInInspector;
-    }
 
     public void CreateMesh()
     {
@@ -101,7 +112,7 @@ public class TerrainMesh : MonoBehaviour
             {
                 int i = x + z * _Width;
 
-                _Vertices[i] = new Vector3(x * _CellSize, 0, -z * _CellSize);
+                _Vertices[i] = new Vector3(x * _CellSize * (_MaxWidth / (float)_Width), 0, -z * _CellSize * (_MaxHeight / (float)_Height));
 
                 if (x != _Width - 1 && z != _Height - 1)
                 {
@@ -136,7 +147,7 @@ public class TerrainMesh : MonoBehaviour
                 float yPos = 0.0f;
                 for (int j = 0; j < _Octaves.Length; ++j)
                 {
-                    yPos += (float)_Octaves[j].PerlinNoise(x, z);
+                    yPos += (float)_Octaves[j].PerlinNoise(x * (_MaxWidth / (float)_Width), z * (_MaxHeight / (float)_Height));
                 }
 
                 if (yPos > _Max)
@@ -160,12 +171,33 @@ public class TerrainMesh : MonoBehaviour
         }
     }
 
+    private void SetTerrainFeatures()
+    {
+        for (int x = 0; x < _Width; ++x)
+        {
+            for (int z = 0; z < _Height; ++z)
+            {
+                float posPercentage = 1.0f - Mathf.InverseLerp(_Min, _Max, _Vertices[x + z * _Width].y);
+
+                if (MountainsRange.IsInRange(posPercentage))
+                    Mountains.Add(new Vector2Int(x, z));
+                else if (PlainsRange.IsInRange(posPercentage))
+                    Plains.Add(new Vector2Int(x, z));
+                else if (BeachesRange.IsInRange(posPercentage))
+                    Beaches.Add(new Vector2Int(x, z));
+                else if (OceansRange.IsInRange(posPercentage))
+                    Oceans.Add(new Vector2Int(x, z));
+            }
+        }
+    }
+
     public void Generate()
     {
         _Mesh = null;
 
         CreateMesh();
         AddNoise();
+        SetTerrainFeatures();
 
         _Mesh.Clear();
         _Mesh.vertices = _Vertices;
@@ -176,13 +208,23 @@ public class TerrainMesh : MonoBehaviour
 
     public void Generate(Vector3[] vertices)
     {
-        _Mesh = null;
+        _Vertices = vertices;
 
-        CreateMesh();
-        AddNoise();
+        for (int x = 0; x < _Width; ++x)
+        {
+            for (int z = 0; z < _Height; ++z)
+            {
+                int i = x + z * _Width;
+
+                float posPercentage = Mathf.InverseLerp(_Min, _Max, _Vertices[i].y);
+                _Colors[i] = _ColorGradient.Evaluate(1.0f - posPercentage);
+            }
+        }
+
+        SetTerrainFeatures();
 
         _Mesh.Clear();
-        _Mesh.vertices = vertices;
+        _Mesh.vertices = _Vertices;
         _Mesh.triangles = _Triangles;
         _Mesh.colors = _Colors;
         _Mesh.RecalculateNormals();

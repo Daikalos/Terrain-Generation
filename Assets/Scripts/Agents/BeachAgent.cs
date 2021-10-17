@@ -5,11 +5,12 @@ using UnityEngine;
 [System.Serializable]
 public class BeachAgent : Agent
 {
+    public BeachAgent(ref Graph graph, TerrainMesh terrain, AgentParams agentParams) : base(ref graph, terrain, agentParams)
+    { }
 
-
-    public override void Initialize(ref Graph graph)
+    public override void Initialize()
     {
-        base.Initialize(ref graph);
+
 
     }
 

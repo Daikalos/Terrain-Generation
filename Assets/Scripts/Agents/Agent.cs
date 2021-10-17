@@ -4,26 +4,28 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [Serializable]
-public abstract class Agent : ICloneable
+public abstract class Agent
 {
-    [SerializeField]
-    protected int _Lifetime = 0;
+    private Graph _Graph;
+    private TerrainMesh _Terrain;
+    private AgentParams _AgentParams;
 
-    protected Graph _Graph;
+    protected Graph Graph => _Graph;
+    protected TerrainMesh Terrain => _Terrain;
+    protected AgentParams AgentParams => _AgentParams;
 
-    public virtual void Initialize(ref Graph graph)
+    public Agent(ref Graph graph, TerrainMesh terrain, AgentParams agentParams)
     {
         _Graph = graph;
+        _Terrain = terrain;
+        _AgentParams = agentParams;
     }
+
+    public abstract void Initialize();
 
     /// <summary>
     /// update the agent
     /// </summary>
     /// <returns>if completed</returns>
     public abstract bool Update();
-
-    public object Clone()
-    {
-        return this.MemberwiseClone();
-    }
 }

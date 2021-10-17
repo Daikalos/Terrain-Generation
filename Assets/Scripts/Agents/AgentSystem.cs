@@ -22,13 +22,20 @@ public class AgentSystem : MonoBehaviour
     [SerializeField, Min(0)] private uint _RiverAgentTokens;
 
     [Space(10)]
-    [SerializeField] private ErosionAgent _ErosionParams;
+    [SerializeField] private ErosionParams _ErosionParams;
     [Space(5)]
-    [SerializeField] private PlainAgent _PlainsParams;
+    [SerializeField] private PlainsParams _PlainsParams;
     [Space(5)]
-    [SerializeField] private BeachAgent _BeachParams;
+    [SerializeField] private BeachParams _BeachParams;
     [Space(5)]
-    [SerializeField] private RiverAgent _RiverParams;
+    [SerializeField] private RiverParams _RiverParams;
+
+    [Space(10)]
+    [SerializeField]
+    private AgentType[] _AgentsOrderOfExecution = new AgentType[] 
+    { 
+        AgentType.Erosion, AgentType.Plain, AgentType.Beach, AgentType.River 
+    };
 
     private Graph _Graph;
 
@@ -47,21 +54,35 @@ public class AgentSystem : MonoBehaviour
         _Graph = new Graph(_Terrain.Width, _Terrain.Height);
         _Graph.SetVertices(_Terrain.Mesh.vertices);
 
-        Debug.Log("Erosion agents started");
-        await Task.Factory.StartNew(() => ExecuteAgents<ErosionAgent>());
-        Debug.Log("Erosion agents done");
-
-        Debug.Log("Plain agents started");
-        await Task.Factory.StartNew(() => ExecuteAgents<PlainAgent>());
-        Debug.Log("Plain agents done");
-
-        Debug.Log("Beach agents started");
-        await Task.Factory.StartNew(() => ExecuteAgents<BeachAgent>());
-        Debug.Log("Beach agents done");
-
-        Debug.Log("River agents started");
-        await Task.Factory.StartNew(() => ExecuteAgents<RiverAgent>());
-        Debug.Log("River agents done");
+        for (int i = 0; i < _AgentsOrderOfExecution.Length; ++i)
+        {
+            switch (_AgentsOrderOfExecution[i])
+            {
+                case AgentType.Erosion:
+                    Debug.Log("Erosion agents started");
+                    await Task.Factory.StartNew(() => ExecuteAgents<ErosionAgent>());
+                    Debug.Log("Erosion agents done");
+                    break;
+                case AgentType.Plain:
+                    Debug.Log("Plain agents started");
+                    await Task.Factory.StartNew(() => ExecuteAgents<PlainAgent>());
+                    Debug.Log("Plain agents done");
+                    break;
+                case AgentType.Beach:
+                    Debug.Log("Beach agents started");
+                    await Task.Factory.StartNew(() => ExecuteAgents<BeachAgent>());
+                    Debug.Log("Beach agents done");
+                    break;
+                case AgentType.River:
+                    Debug.Log("River agents started");
+                    await Task.Factory.StartNew(() => ExecuteAgents<RiverAgent>());
+                    Debug.Log("River agents done");
+                    break;
+                default:
+                    Debug.LogError("please assign a valid type");
+                    break;
+            }
+        }
 
         ModifyTerrain();
     }
@@ -102,8 +123,6 @@ public class AgentSystem : MonoBehaviour
                 if (status) // if agent is done, remove it
                 {
                     ++completedAgents;
-                    --takenTokens;
-
                     agents.RemoveAt(i);
                 }
             }
@@ -130,17 +149,17 @@ public class AgentSystem : MonoBehaviour
         for (int i = 0; i < totalAgents; ++i)
         {
             if (typeof(T) == typeof(ErosionAgent))
-                agents.Add(_ErosionParams.Clone() as ErosionAgent);
+                agents.Add(new ErosionAgent(ref _Graph, _Terrain, _ErosionParams));
             else if (typeof(T) == typeof(PlainAgent))
-                agents.Add(_PlainsParams.Clone() as PlainAgent);
+                agents.Add(new PlainAgent(ref _Graph, _Terrain, _PlainsParams));
             else if (typeof(T) == typeof(BeachAgent))
-                agents.Add(_BeachParams.Clone() as BeachAgent);
+                agents.Add(new BeachAgent(ref _Graph, _Terrain, _BeachParams));
             else if (typeof(T) == typeof(RiverAgent))
-                agents.Add(_RiverParams.Clone() as RiverAgent);
+                agents.Add(new RiverAgent(ref _Graph, _Terrain, _RiverParams));
             else
                 break;
 
-            agents[i].Initialize(ref _Graph);
+            agents[i].Initialize();
         }
 
         return agents;
