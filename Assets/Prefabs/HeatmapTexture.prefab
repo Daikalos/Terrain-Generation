@@ -94,6 +94,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3dced785b4f554e4898e543a8d0920c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _AgentSystem: {fileID: 0}
   _RenderTexture: {fileID: 8400000, guid: 997b076aaf5f539439cb27d77500a9a1, type: 2}
   _Renderer: {fileID: 330693333887978681}
   _UseRandomSeeds: 1

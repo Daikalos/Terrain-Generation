@@ -7,4 +7,9 @@ using UnityEngine;
 public class RiverParams : AgentParams
 {
 
+
+    public override void Randomize()
+    {
+
+    }
 }

@@ -6,7 +6,7 @@ using MyBox;
 
 public class AgentSystem : MonoBehaviour
 {
-    [SerializeField] private TerrainMesh _Terrain;
+    public TerrainMesh Terrain;
 
     [Space(10)]
     [SerializeField, Min(0)] private uint _ErosionAgentTotal;
@@ -14,9 +14,6 @@ public class AgentSystem : MonoBehaviour
     [Space(10)]
     [SerializeField, Min(0)] private uint _PlainAgentsTotal;
     [SerializeField, Min(0)] private uint _PlainAgentTokens;
-    [Space(10)]
-    [SerializeField, Min(0)] private uint _BeachAgentTotal;
-    [SerializeField, Min(0)] private uint _BeachAgentTokens;
     [Space(10)]
     [SerializeField, Min(0)] private uint _RiverAgentTotal;
     [SerializeField, Min(0)] private uint _RiverAgentTokens;
@@ -26,22 +23,20 @@ public class AgentSystem : MonoBehaviour
     [Space(5)]
     [SerializeField] private PlainsParams _PlainsParams;
     [Space(5)]
-    [SerializeField] private BeachParams _BeachParams;
-    [Space(5)]
     [SerializeField] private RiverParams _RiverParams;
 
     [Space(10)]
     [SerializeField]
     private AgentType[] _AgentsOrderOfExecution = new AgentType[] 
     { 
-        AgentType.Erosion, AgentType.Plain, AgentType.Beach, AgentType.River 
+        AgentType.Erosion, AgentType.Plain, AgentType.River 
     };
 
     private Graph _Graph;
 
     public void ResetTerrain()
     {
-        _Terrain.Generate();
+        Terrain.Generate();
     }
 
     public async void Execute()
@@ -51,61 +46,42 @@ public class AgentSystem : MonoBehaviour
         var method = type.GetMethod("Clear");
         method.Invoke(new object(), null);
 
-        _Graph = new Graph(_Terrain.Width, _Terrain.Height);
-        _Graph.SetVertices(_Terrain.Mesh.vertices);
+        _Graph = new Graph(Terrain.Width, Terrain.Height);
+        _Graph.SetVertices(Terrain.Mesh.vertices);
 
         for (int i = 0; i < _AgentsOrderOfExecution.Length; ++i)
         {
-            switch (_AgentsOrderOfExecution[i])
-            {
-                case AgentType.Erosion:
-                    Debug.Log("Erosion agents started");
-                    await Task.Factory.StartNew(() => ExecuteAgents<ErosionAgent>());
-                    Debug.Log("Erosion agents done");
-                    break;
-                case AgentType.Plain:
-                    Debug.Log("Plain agents started");
-                    await Task.Factory.StartNew(() => ExecuteAgents<PlainAgent>());
-                    Debug.Log("Plain agents done");
-                    break;
-                case AgentType.Beach:
-                    Debug.Log("Beach agents started");
-                    await Task.Factory.StartNew(() => ExecuteAgents<BeachAgent>());
-                    Debug.Log("Beach agents done");
-                    break;
-                case AgentType.River:
-                    Debug.Log("River agents started");
-                    await Task.Factory.StartNew(() => ExecuteAgents<RiverAgent>());
-                    Debug.Log("River agents done");
-                    break;
-                default:
-                    Debug.LogError("please assign a valid type");
-                    break;
-            }
+            AgentType agentType = _AgentsOrderOfExecution[i];
+
+            Debug.Log(System.Enum.GetName(typeof(AgentType), agentType) + " started");
+            await Task.Factory.StartNew(() => ExecuteAgents(agentType));
+            Debug.Log(System.Enum.GetName(typeof(AgentType), agentType) + " stopped");
         }
 
         ModifyTerrain();
     }
 
-    private void ExecuteAgents<T>()
+    private void ExecuteAgents(AgentType agentType)
     {
-        List<Agent> agents = Populate<T>();
+        List<Agent> agents = Populate(agentType);
 
         int completedAgents = 0;
         int totalAgents = agents.Count;
 
         uint totalTokens = 0;
 
-        if (typeof(T) == typeof(ErosionAgent))
-            totalTokens = _ErosionAgentTokens;
-        else if (typeof(T) == typeof(PlainAgent))
-            totalTokens = _PlainAgentTokens;
-        else if (typeof(T) == typeof(BeachAgent))
-            totalTokens = _BeachAgentTokens;
-        else if (typeof(T) == typeof(RiverAgent))
-            totalTokens = _RiverAgentTokens;
-        else
-            return;
+        switch (agentType)
+        {
+            case AgentType.Erosion:
+                totalTokens = _ErosionAgentTokens;
+                break;
+            case AgentType.Plain:
+                totalTokens = _PlainAgentTokens;
+                break;
+            case AgentType.River:
+                totalTokens = _RiverAgentTokens;
+                break;
+        }
 
         while (completedAgents != totalAgents)
         {
@@ -129,35 +105,39 @@ public class AgentSystem : MonoBehaviour
         }
     }
 
-    private List<Agent> Populate<T>()
+    private List<Agent> Populate(AgentType agentType)
     {
         List<Agent> agents = new List<Agent>();
 
         uint totalAgents = 0;
-
-        if (typeof(T) == typeof(ErosionAgent))
-            totalAgents = _ErosionAgentTotal;
-        else if (typeof(T) == typeof(PlainAgent))
-            totalAgents = _PlainAgentsTotal;
-        else if (typeof(T) == typeof(BeachAgent))
-            totalAgents = _BeachAgentTotal;
-        else if (typeof(T) == typeof(RiverAgent))
-            totalAgents = _RiverAgentTotal;
-        else
-            return agents;
+        
+        switch (agentType)
+        {
+            case AgentType.Erosion:
+                totalAgents = _ErosionAgentTotal;
+                break;
+            case AgentType.Plain:
+                totalAgents = _PlainAgentsTotal;
+                break;
+            case AgentType.River:
+                totalAgents = _RiverAgentTotal;
+                break;
+        }
 
         for (int i = 0; i < totalAgents; ++i)
         {
-            if (typeof(T) == typeof(ErosionAgent))
-                agents.Add(new ErosionAgent(ref _Graph, _Terrain, _ErosionParams));
-            else if (typeof(T) == typeof(PlainAgent))
-                agents.Add(new PlainAgent(ref _Graph, _Terrain, _PlainsParams));
-            else if (typeof(T) == typeof(BeachAgent))
-                agents.Add(new BeachAgent(ref _Graph, _Terrain, _BeachParams));
-            else if (typeof(T) == typeof(RiverAgent))
-                agents.Add(new RiverAgent(ref _Graph, _Terrain, _RiverParams));
-            else
-                break;
+            switch (agentType)
+            {
+                case AgentType.Erosion:
+                    agents.Add(new ErosionAgent(ref _Graph, Terrain, _ErosionParams));
+                    break;
+                case AgentType.Plain:
+                    agents.Add(new PlainAgent(ref _Graph, Terrain, _PlainsParams));
+                    break;
+                case AgentType.River:
+                    agents.Add(new RiverAgent(ref _Graph, Terrain, _RiverParams));
+                    break;
+            }
 
             agents[i].Initialize();
         }
@@ -167,14 +147,49 @@ public class AgentSystem : MonoBehaviour
 
     private void ModifyTerrain()
     {
-        Vector3[] vertices = _Terrain.Mesh.vertices;
-        for (int x = 0; x < _Terrain.Width; ++x)
+        Vector3[] vertices = Terrain.Mesh.vertices;
+        for (int x = 0; x < Terrain.Width; ++x)
         {
-            for (int z = 0; z < _Terrain.Height; ++z)
+            for (int z = 0; z < Terrain.Height; ++z)
             {
-                vertices[x + z * _Terrain.Width].y = _Graph.AtPos(x, z).WorldPosition.y;
+                vertices[x + z * Terrain.Width].y = _Graph.AtPos(x, z).WorldPosition.y;
             }
         }
-        _Terrain.Generate(vertices);
+        Terrain.Generate(vertices);
+    }
+
+    public float[] RandomExecution(float[] heightmap, int width, int height)
+    {
+        _ErosionAgentTotal = (uint)StaticRandom.Range(500, 2250);
+        _ErosionAgentTokens = (uint)StaticRandom.Range(1, _ErosionAgentTotal);
+
+        _PlainAgentsTotal = (uint)StaticRandom.Range(2, 5);
+        _PlainAgentTokens = (uint)StaticRandom.Range(1, _PlainAgentsTotal);
+
+        _RiverAgentTotal = (uint)StaticRandom.Range(2, 5);
+        _RiverAgentTokens = (uint)StaticRandom.Range(1, _RiverAgentTotal);
+
+        _ErosionParams = new ErosionParams();
+        _PlainsParams = new PlainsParams();
+        _RiverParams = new RiverParams();
+
+        _ErosionParams.Randomize();
+        _PlainsParams.Randomize();
+        _RiverParams.Randomize();
+
+        _Graph = new Graph(width, height);
+        _Graph.SetVertices(heightmap);
+
+        List<AgentType> orderOfExecution = new List<AgentType>();
+
+        for (int i = 0; i < StaticRandom.Range(1, 5); ++i)
+        {
+            System.Array values = System.Enum.GetValues(typeof(AgentType));
+            orderOfExecution.Add((AgentType)values.GetValue(StaticRandom.Range(0, values.Length)));
+
+            ExecuteAgents(orderOfExecution[i]);
+        }
+
+        return System.Array.ConvertAll(_Graph.Vertices, v => v.WorldPosition.y);
     }
 }

@@ -6,5 +6,5 @@ using UnityEngine;
 [Serializable]
 public abstract class AgentParams
 {
-
+    public abstract void Randomize();
 }

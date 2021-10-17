@@ -8,7 +8,14 @@ public class ErosionParams : AgentParams
 {
     [Space(5)]
     [Range(-1f, 1f)] 
-    public float Leniency = 0.30f;
-    public float InverseStrength = 7.5f;
-    public int AreaOfEffect = 8;
+    public float Leniency = -0.1f;
+    public float InverseStrength = 13.0f;
+    public int AreaOfEffect = 5;
+
+    public override void Randomize()
+    {
+        Leniency = StaticRandom.Range(-0.3f, 0.8f);
+        InverseStrength = StaticRandom.Range(1.0f, 50.0f);
+        AreaOfEffect = StaticRandom.Range(1, 7);
+    }
 }

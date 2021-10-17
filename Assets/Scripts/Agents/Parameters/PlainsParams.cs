@@ -7,4 +7,9 @@ using UnityEngine;
 public class PlainsParams : AgentParams
 {
 
+
+    public override void Randomize()
+    {
+
+    }
 }

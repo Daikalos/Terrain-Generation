@@ -8,6 +8,8 @@ public class Graph
 {
     private Vertex[] _Vertices;
 
+    public Vertex[] Vertices => _Vertices;
+
     public int Width { get; private set; }
     public int Height { get; private set; }
 
@@ -71,6 +73,19 @@ public class Graph
             {
                 int i = x + z * Width;
                 _Vertices[i] = new Vertex(vertices[i], new Vector2Int(x, z));
+            }
+        }
+        AddEdges();
+    }
+    public void SetVertices(float[] heights)
+    {
+        _Vertices = new Vertex[Width * Height];
+        for (int x = 0; x < Width; ++x) // Add all vertices
+        {
+            for (int z = 0; z < Height; ++z)
+            {
+                int i = x + z * Width;
+                _Vertices[i] = new Vertex(new Vector3(x, heights[i], z), new Vector2Int(x, z));
             }
         }
         AddEdges();

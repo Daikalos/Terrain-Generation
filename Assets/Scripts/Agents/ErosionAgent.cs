@@ -36,7 +36,9 @@ public class ErosionAgent : Agent
                 if (!Graph.WithinBoard(pos))
                     continue;
 
-                Graph.AtPos(pos).WorldPosition.y += -1.0f / ((Mathf.Sqrt(Mathf.Pow(x, 2) + Mathf.Pow(z, 2)) + 1) * Params.InverseStrength);
+                float strength = StaticRandom.Range(Params.InverseStrength / 4.0f, Params.InverseStrength);
+
+                Graph.AtPos(pos).WorldPosition.y += -1.0f / ((Mathf.Sqrt(Mathf.Pow(x, 2) + Mathf.Pow(z, 2)) + 1) * strength);
             }
         }
 
@@ -75,8 +77,8 @@ public class ErosionAgent : Agent
 
         _Position = newVertex.LocalPosition;
 
-        float posProc = 1.0f - Mathf.InverseLerp(Terrain.Min, Terrain.Max, Graph.AtPos(_Position).WorldPosition.y);
+        float posProc = Mathf.InverseLerp(Terrain.Min, Terrain.Max, Graph.AtPos(_Position).WorldPosition.y);
 
-        return Terrain.BeachesRange.IsInRange(posProc); // run until we have not reached the beach
+        return Terrain.BeachesRange.IsInRange(posProc); // run until we have reached the beach
     }
 }

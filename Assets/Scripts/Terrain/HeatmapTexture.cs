@@ -3,6 +3,7 @@ using UnityEditor;
 
 public class HeatmapTexture : MonoBehaviour
 {
+    [SerializeField] private AgentSystem _AgentSystem;
     [SerializeField] private RenderTexture _RenderTexture;
     [SerializeField] private Renderer _Renderer;
     [Space(10)]
@@ -26,6 +27,8 @@ public class HeatmapTexture : MonoBehaviour
 
         for (int i = 0; i < _Samples; ++i) // simulate creating new terrain
         {
+            AgentSystem tempAgentSystem = _AgentSystem;
+
             int width = StaticRandom.Range(48, 128);
             int height = StaticRandom.Range(48, 128);
 
@@ -49,10 +52,15 @@ public class HeatmapTexture : MonoBehaviour
 
             SimulateTerrain(width, height, out float minValue, out float maxValue);
 
+            _AgentSystem.Terrain.SetTerrainFeatures(_YCoords, width, height, minValue, maxValue);
+            _YCoords = _AgentSystem.RandomExecution(_YCoords, width, height);
+
             if (_UseAlternative)
                 AddToHeatmapAlternative(width, height, minValue, maxValue);
             else
                 AddToHeatmap(width, height, minValue, maxValue);
+
+            _AgentSystem = tempAgentSystem;
         }
 
         CustomNoise.Restore();
@@ -204,13 +212,18 @@ public class HeatmapTexture : MonoBehaviour
         {
             for (int y = 0; y < _RenderTexture.height; ++y)
             {
-                float color = _Heatmap[x + y * _RenderTexture.width] / 8.0f;
+                float color = _Heatmap[x + y * _RenderTexture.width] / 7.0f;
                 _Texture.SetPixel(y, (_RenderTexture.height - 1) - x, _HeatmapGradient.Evaluate(color));
             }
         }
         _Texture.Apply();
 
         RenderTexture.active = null;
+
+        int usingAlt = _UseAlternative ? 1 : 0;
+
+        byte[] bytes = _Texture.EncodeToPNG();
+        System.IO.File.WriteAllBytes($"C:/Users/Tobias/Desktop/heatmap-{usingAlt}.png", bytes);
     }
 
     private void OnDrawGizmos()

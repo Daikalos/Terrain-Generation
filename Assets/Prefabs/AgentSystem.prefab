@@ -44,16 +44,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _Terrain: {fileID: 0}
-  _ErosionAgentTotal: 2500
-  _ErosionAgentTokens: 1000
+  _ErosionAgentTotal: 5000
+  _ErosionAgentTokens: 2000
   _PlainAgentsTotal: 0
   _PlainAgentTokens: 0
-  _BeachAgentTotal: 0
-  _BeachAgentTokens: 0
   _RiverAgentTotal: 0
   _RiverAgentTokens: 0
   _ErosionParams:
-    Leniency: -0.07
-    InverseStrength: 25
-    AreaOfEffect: 4
-  _AgentsOrderOfExecution: 00000000010000000200000003000000
+    Leniency: -0.1
+    InverseStrength: 13
+    AreaOfEffect: 5
+  _AgentsOrderOfExecution: 000000000100000002000000

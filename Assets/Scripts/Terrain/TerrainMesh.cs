@@ -22,6 +22,8 @@ public class TerrainMesh : MonoBehaviour
 
     [Space(10)]
     [MinMaxRange(0.0f, 1.0f)]
+    public MinMaxFloat MountainsRidgeRange;
+    [MinMaxRange(0.0f, 1.0f)]
     public MinMaxFloat MountainsRange;
     [MinMaxRange(0.0f, 1.0f)]
     public MinMaxFloat PlainsRange;
@@ -52,13 +54,15 @@ public class TerrainMesh : MonoBehaviour
     private float _Min, _Max;
     private float _TileSize;
 
-    [HideInInspector]
+    [NonSerialized]
+    public List<Vector2Int> MountainsRidge;
+    [NonSerialized]
     public List<Vector2Int> Mountains;
-    [HideInInspector]
+    [NonSerialized]
     public List<Vector2Int> Plains;
-    [HideInInspector]
+    [NonSerialized]
     public List<Vector2Int> Beaches;
-    [HideInInspector]
+    [NonSerialized]
     public List<Vector2Int> Oceans;
 
     public Mesh Mesh => _Mesh;
@@ -83,10 +87,10 @@ public class TerrainMesh : MonoBehaviour
                 gameObject.GetComponent<MeshFilter>() :
                 gameObject.AddComponent<MeshFilter>();
 
-            meshRenderer.sharedMaterial = new Material(Shader.Find("Custom/TerrainShader"));
-            meshFilter.mesh = new Mesh();
+            _Mesh = new Mesh();
 
-            _Mesh = meshFilter.sharedMesh;
+            meshRenderer.material = new Material(Shader.Find("Custom/TerrainShader"));
+            meshFilter.mesh = _Mesh;
 
             _Mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
         }
@@ -132,8 +136,8 @@ public class TerrainMesh : MonoBehaviour
 
     public void AddNoise()
     {
-        _Min = float.MaxValue;
-        _Max = -float.MaxValue;
+        _Min = float.PositiveInfinity;
+        _Max = float.NegativeInfinity;
 
         if (_UseSeed) 
             CustomNoise.SetSeed(_Seed);
@@ -158,7 +162,10 @@ public class TerrainMesh : MonoBehaviour
                 _Vertices[x + z * _Width].y = yPos;
             }
         }
+    }
 
+    public void SetColor()
+    {
         for (int x = 0; x < _Width; ++x)
         {
             for (int z = 0; z < _Height; ++z)
@@ -166,20 +173,56 @@ public class TerrainMesh : MonoBehaviour
                 int i = x + z * _Width;
 
                 float posPercentage = Mathf.InverseLerp(_Min, _Max, _Vertices[i].y);
-                _Colors[i] = _ColorGradient.Evaluate(1.0f - posPercentage);
+                _Colors[i] = _ColorGradient.Evaluate(posPercentage);
             }
         }
     }
 
-    private void SetTerrainFeatures()
+    public void SetTerrainFeatures()
     {
+        MountainsRidge = new List<Vector2Int>(_Width * _Height);
+        Mountains = new List<Vector2Int>(_Width * _Height);
+        Plains = new List<Vector2Int>(_Width * _Height);
+        Beaches = new List<Vector2Int>(_Width * _Height);
+        Oceans = new List<Vector2Int>(_Width * _Height);
+
         for (int x = 0; x < _Width; ++x)
         {
             for (int z = 0; z < _Height; ++z)
             {
-                float posPercentage = 1.0f - Mathf.InverseLerp(_Min, _Max, _Vertices[x + z * _Width].y);
+                float posPercentage = Mathf.InverseLerp(_Min, _Max, _Vertices[x + z * _Width].y);
 
-                if (MountainsRange.IsInRange(posPercentage))
+                if (MountainsRidgeRange.IsInRange(posPercentage))
+                    MountainsRidge.Add(new Vector2Int(x, z));
+                else if (MountainsRange.IsInRange(posPercentage))
+                    Mountains.Add(new Vector2Int(x, z));
+                else if (PlainsRange.IsInRange(posPercentage))
+                    Plains.Add(new Vector2Int(x, z));
+                else if (BeachesRange.IsInRange(posPercentage))
+                    Beaches.Add(new Vector2Int(x, z));
+                else if (OceansRange.IsInRange(posPercentage))
+                    Oceans.Add(new Vector2Int(x, z));
+            }
+        }
+    }
+
+    public void SetTerrainFeatures(float[] yCoords, int width, int height, float min, float max)
+    {
+        MountainsRidge = new List<Vector2Int>(width * height);
+        Mountains = new List<Vector2Int>(width * height);
+        Plains = new List<Vector2Int>(width * height);
+        Beaches = new List<Vector2Int>(width * height);
+        Oceans = new List<Vector2Int>(width * height);
+
+        for (int x = 0; x < width; ++x)
+        {
+            for (int z = 0; z < height; ++z)
+            {
+                float posPercentage = Mathf.InverseLerp(min, max, yCoords[x + z * width]);
+
+                if (MountainsRidgeRange.IsInRange(posPercentage))
+                    MountainsRidge.Add(new Vector2Int(x, z));
+                else if (MountainsRange.IsInRange(posPercentage))
                     Mountains.Add(new Vector2Int(x, z));
                 else if (PlainsRange.IsInRange(posPercentage))
                     Plains.Add(new Vector2Int(x, z));
@@ -193,13 +236,12 @@ public class TerrainMesh : MonoBehaviour
 
     public void Generate()
     {
-        _Mesh = null;
-
         CreateMesh();
         AddNoise();
+        SetColor();
         SetTerrainFeatures();
 
-        _Mesh.Clear();
+        _Mesh.Clear(false);
         _Mesh.vertices = _Vertices;
         _Mesh.triangles = _Triangles;
         _Mesh.colors = _Colors;
@@ -210,20 +252,10 @@ public class TerrainMesh : MonoBehaviour
     {
         _Vertices = vertices;
 
-        for (int x = 0; x < _Width; ++x)
-        {
-            for (int z = 0; z < _Height; ++z)
-            {
-                int i = x + z * _Width;
-
-                float posPercentage = Mathf.InverseLerp(_Min, _Max, _Vertices[i].y);
-                _Colors[i] = _ColorGradient.Evaluate(1.0f - posPercentage);
-            }
-        }
-
+        SetColor();
         SetTerrainFeatures();
 
-        _Mesh.Clear();
+        _Mesh.Clear(false);
         _Mesh.vertices = _Vertices;
         _Mesh.triangles = _Triangles;
         _Mesh.colors = _Colors;
