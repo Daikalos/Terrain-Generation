@@ -61,26 +61,26 @@ public class ErosionAgent : Agent
             viableVertices.Enqueue(neighbour, Vector3.Angle(distanceVector, Vector3.up)); // the higher the angle, the lower the vertex is
         }
 
-        if (viableVertices.Count == 0)
+        if (viableVertices.Count == 0) // if no more viable vertices, then we are done
             return true;
 
-        Vertex newVertex = null; // new vertex to go to
+        Vertex direction = null; // new vertex to go to
 
         int i = 0;
-        while (newVertex == null)
+        while (direction == null)
         {
             float chance = viableVertices.Priority(i) / 180.0f;
             if (StaticRandom.Range(0.0f, 1.0f) < chance) // the lower the vertex, the higher the chance to get selected
             {
-                newVertex = viableVertices[i];
+                direction = viableVertices[i];
             }
 
             i = (i + 1) % viableVertices.Count;
         }
 
-        _Position = newVertex.LocalPosition;
+        _Position = direction.LocalPosition;
 
-        float posProc = Mathf.InverseLerp(Terrain.Min, Terrain.Max, Graph.AtPos(_Position).WorldPosition.y);
+        float posProc = Mathf.InverseLerp(Terrain.Min, Terrain.Max, direction.WorldPosition.y);
 
         return Terrain.BeachesRange.IsInRange(posProc) || ++_UsedTokens >= Params.Tokens; // run until we have reached the beach or ran out of tokens to use
     }

@@ -17,8 +17,6 @@ public class Graph
     {
         Width = width;
         Height = height;
-
-        _Vertices = new Vertex[Width * Height];
     }
 
     public void Generate()
@@ -28,6 +26,7 @@ public class Graph
     }
     private void AddVertices()
     {
+        _Vertices = new Vertex[Width * Height];
         for (int x = 0; x < Width; ++x) // Add all vertices
         {
             for (int z = 0; z < Height; ++z)

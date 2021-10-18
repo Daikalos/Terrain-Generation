@@ -8,15 +8,13 @@ public class AgentSystem : MonoBehaviour
 {
     public TerrainMesh Terrain;
 
-    [Space(10)]
-    [SerializeField, Min(0)] private uint _ErosionAgentTotal;
-    [SerializeField, Min(0)] private uint _ErosionAgentTokens;
-    [Space(10)]
-    [SerializeField, Min(0)] private uint _PlainAgentsTotal;
-    [SerializeField, Min(0)] private uint _PlainAgentTokens;
-    [Space(10)]
-    [SerializeField, Min(0)] private uint _RiverAgentTotal;
-    [SerializeField, Min(0)] private uint _RiverAgentTokens;
+    [SerializeField]
+    private AgentOrderOfExecution[] _AgentsOrderOfExecution = new AgentOrderOfExecution[]
+    {
+        new AgentOrderOfExecution{ AgentType = AgentType.Erosion },
+        new AgentOrderOfExecution{ AgentType = AgentType.Plain },
+        new AgentOrderOfExecution{ AgentType = AgentType.River }
+    };
 
     [Space(10)]
     [SerializeField] private ErosionParams _ErosionParams;
@@ -25,16 +23,9 @@ public class AgentSystem : MonoBehaviour
     [Space(5)]
     [SerializeField] private RiverParams _RiverParams;
 
-    [Space(10)]
-    [SerializeField]
-    private AgentType[] _AgentsOrderOfExecution = new AgentType[] 
-    { 
-        AgentType.Erosion, AgentType.Plain, AgentType.River 
-    };
-
     private Graph _Graph;
 
-    public void ResetTerrain()
+    public void RestoreTerrain()
     {
         Terrain.Generate();
     }
@@ -51,37 +42,23 @@ public class AgentSystem : MonoBehaviour
 
         for (int i = 0; i < _AgentsOrderOfExecution.Length; ++i)
         {
-            AgentType agentType = _AgentsOrderOfExecution[i];
+            AgentOrderOfExecution agentData = _AgentsOrderOfExecution[i];
 
-            Debug.Log(System.Enum.GetName(typeof(AgentType), agentType) + " started");
-            await Task.Factory.StartNew(() => ExecuteAgents(agentType));
-            Debug.Log(System.Enum.GetName(typeof(AgentType), agentType) + " stopped");
+            Debug.Log(System.Enum.GetName(typeof(AgentType), agentData.AgentType) + " started");
+            await Task.Factory.StartNew(() => ExecuteAgents(agentData.AgentType, agentData.TotalAgents, agentData.TotalTokens));
+            Debug.Log(System.Enum.GetName(typeof(AgentType), agentData.AgentType) + " stopped");
+
+            ModifyTerrain();
         }
-
-        ModifyTerrain();
     }
 
-    private void ExecuteAgents(AgentType agentType)
+    private void ExecuteAgents(AgentType agentType, uint totalAgents, uint totalTokens)
     {
-        List<Agent> agents = Populate(agentType);
+        if (totalTokens <= 0 || totalAgents <= 0)
+            return;
 
+        List<Agent> agents = Populate(agentType, totalAgents);
         int completedAgents = 0;
-        int totalAgents = agents.Count;
-
-        uint totalTokens = 0;
-
-        switch (agentType)
-        {
-            case AgentType.Erosion:
-                totalTokens = _ErosionAgentTokens;
-                break;
-            case AgentType.Plain:
-                totalTokens = _PlainAgentTokens;
-                break;
-            case AgentType.River:
-                totalTokens = _RiverAgentTokens;
-                break;
-        }
 
         System.Diagnostics.Stopwatch stopWatch = System.Diagnostics.Stopwatch.StartNew();
         double secondFrame = stopWatch.Elapsed.TotalMilliseconds;
@@ -115,24 +92,9 @@ public class AgentSystem : MonoBehaviour
         }
     }
 
-    private List<Agent> Populate(AgentType agentType)
+    private List<Agent> Populate(AgentType agentType, uint totalAgents)
     {
         List<Agent> agents = new List<Agent>();
-
-        uint totalAgents = 0;
-        
-        switch (agentType)
-        {
-            case AgentType.Erosion:
-                totalAgents = _ErosionAgentTotal;
-                break;
-            case AgentType.Plain:
-                totalAgents = _PlainAgentsTotal;
-                break;
-            case AgentType.River:
-                totalAgents = _RiverAgentTotal;
-                break;
-        }
 
         for (int i = 0; i < totalAgents; ++i)
         {
@@ -170,14 +132,14 @@ public class AgentSystem : MonoBehaviour
 
     public float[] RandomExecution(float[] heightmap, int width, int height)
     {
-        _ErosionAgentTotal = (uint)StaticRandom.Range(500, 2250);
-        _ErosionAgentTokens = (uint)StaticRandom.Range(1, _ErosionAgentTotal);
+        uint erosionAgentTotal = (uint)StaticRandom.Range(500, 2250);
+        uint erosionAgentTokens = (uint)StaticRandom.Range(1, erosionAgentTotal);
 
-        _PlainAgentsTotal = (uint)StaticRandom.Range(2, 5);
-        _PlainAgentTokens = (uint)StaticRandom.Range(1, _PlainAgentsTotal);
+        uint plainAgentsTotal = (uint)StaticRandom.Range(2, 5);
+        uint plainAgentTokens = (uint)StaticRandom.Range(1, plainAgentsTotal);
 
-        _RiverAgentTotal = (uint)StaticRandom.Range(2, 5);
-        _RiverAgentTokens = (uint)StaticRandom.Range(1, _RiverAgentTotal);
+        uint riverAgentTotal = (uint)StaticRandom.Range(2, 5);
+        uint riverAgentTokens = (uint)StaticRandom.Range(1, riverAgentTotal);
 
         _ErosionParams = new ErosionParams();
         _PlainsParams = new PlainsParams();
@@ -190,16 +152,41 @@ public class AgentSystem : MonoBehaviour
         _Graph = new Graph(width, height);
         _Graph.SetVertices(heightmap);
 
-        List<AgentType> orderOfExecution = new List<AgentType>();
-
         for (int i = 0; i < StaticRandom.Range(1, 5); ++i)
         {
             System.Array values = System.Enum.GetValues(typeof(AgentType));
-            orderOfExecution.Add((AgentType)values.GetValue(StaticRandom.Range(0, values.Length)));
+            AgentType randomType = (AgentType)values.GetValue(StaticRandom.Range(0, values.Length));
 
-            ExecuteAgents(orderOfExecution[i]);
+            uint totalAgents = 0;
+            uint totalTokens = 0;
+
+            switch (randomType)
+            {
+                case AgentType.Erosion:
+                    totalAgents = erosionAgentTotal;
+                    totalTokens = erosionAgentTokens;
+                    break;
+                case AgentType.Plain:
+                    totalAgents = plainAgentsTotal;
+                    totalTokens = plainAgentTokens;
+                    break;
+                case AgentType.River:
+                    totalAgents = riverAgentTotal;
+                    totalTokens = riverAgentTokens;
+                    break;
+            }
+
+            ExecuteAgents(randomType, totalAgents, totalTokens);
         }
 
         return System.Array.ConvertAll(_Graph.Vertices, v => v.WorldPosition.y);
+    }
+
+    [System.Serializable]
+    private class AgentOrderOfExecution
+    {
+        public AgentType AgentType;
+        [Min(0)] public uint TotalAgents;
+        [Min(0)] public uint TotalTokens; // total tokens that can be used by agents
     }
 }
