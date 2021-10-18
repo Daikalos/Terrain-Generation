@@ -63,6 +63,8 @@ public class TerrainMesh : MonoBehaviour
     [NonSerialized]
     public List<Vector2Int> Beaches;
     [NonSerialized]
+    public List<Vector2Int> Rivers;
+    [NonSerialized]
     public List<Vector2Int> Oceans;
 
     public Mesh Mesh => _Mesh;
@@ -194,13 +196,13 @@ public class TerrainMesh : MonoBehaviour
 
                 if (MountainsRidgeRange.IsInRange(posPercentage))
                     MountainsRidge.Add(new Vector2Int(x, z));
-                else if (MountainsRange.IsInRange(posPercentage))
+                if (MountainsRange.IsInRange(posPercentage))
                     Mountains.Add(new Vector2Int(x, z));
-                else if (PlainsRange.IsInRange(posPercentage))
+                if (PlainsRange.IsInRange(posPercentage))
                     Plains.Add(new Vector2Int(x, z));
-                else if (BeachesRange.IsInRange(posPercentage))
+                if (BeachesRange.IsInRange(posPercentage))
                     Beaches.Add(new Vector2Int(x, z));
-                else if (OceansRange.IsInRange(posPercentage))
+                if (OceansRange.IsInRange(posPercentage))
                     Oceans.Add(new Vector2Int(x, z));
             }
         }
@@ -222,13 +224,13 @@ public class TerrainMesh : MonoBehaviour
 
                 if (MountainsRidgeRange.IsInRange(posPercentage))
                     MountainsRidge.Add(new Vector2Int(x, z));
-                else if (MountainsRange.IsInRange(posPercentage))
+                if (MountainsRange.IsInRange(posPercentage))
                     Mountains.Add(new Vector2Int(x, z));
-                else if (PlainsRange.IsInRange(posPercentage))
+                if (PlainsRange.IsInRange(posPercentage))
                     Plains.Add(new Vector2Int(x, z));
-                else if (BeachesRange.IsInRange(posPercentage))
+                if (BeachesRange.IsInRange(posPercentage))
                     Beaches.Add(new Vector2Int(x, z));
-                else if (OceansRange.IsInRange(posPercentage))
+                if (OceansRange.IsInRange(posPercentage))
                     Oceans.Add(new Vector2Int(x, z));
             }
         }

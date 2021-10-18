@@ -10,6 +10,8 @@ public abstract class Agent
     private TerrainMesh _Terrain;
     private AgentParams _AgentParams;
 
+    protected int _UsedTokens = 0;
+
     protected Graph Graph => _Graph;
     protected TerrainMesh Terrain => _Terrain;
     protected AgentParams AgentParams => _AgentParams;
@@ -27,5 +29,5 @@ public abstract class Agent
     /// update the agent
     /// </summary>
     /// <returns>if completed</returns>
-    public abstract bool Update();
+    public abstract bool Update(float deltaTime);
 }

@@ -11,8 +11,8 @@ public class ErosionAgent : Agent
 
     private ErosionParams Params => (ErosionParams)AgentParams;
 
-    public ErosionAgent(ref Graph graph, TerrainMesh terrain, AgentParams agentParams) : base(ref graph, terrain, agentParams) 
-    { }
+    public ErosionAgent(ref Graph graph, TerrainMesh terrain, AgentParams agentParams)
+            : base(ref graph, terrain, agentParams) { }
 
     public override void Initialize()
     {
@@ -20,13 +20,13 @@ public class ErosionAgent : Agent
         _Visited = new List<Vertex>();
     }
 
-    public override bool Update()
+    public override bool Update(float deltaTime)
     {
         Vertex current = Graph.AtPos(_Position);
         _Visited.Add(current);
 
         // squash the area near current position
-        // the farther away from current position, the less squashed
+        // the farther away from current position, the less squashed the vertex is
         for (int x = -Params.AreaOfEffect; x <= Params.AreaOfEffect; ++x)
         {
             for (int z = -Params.AreaOfEffect; z <= Params.AreaOfEffect; ++z)
@@ -36,9 +36,12 @@ public class ErosionAgent : Agent
                 if (!Graph.WithinBoard(pos))
                     continue;
 
+                Vertex neighbour = Graph.AtPos(pos);
+
                 float strength = StaticRandom.Range(Params.InverseStrength / 4.0f, Params.InverseStrength);
 
-                Graph.AtPos(pos).WorldPosition.y += -1.0f / ((Mathf.Sqrt(Mathf.Pow(x, 2) + Mathf.Pow(z, 2)) + 1) * strength);
+                float heightOffset = neighbour.WorldPosition.y - current.WorldPosition.y;
+                neighbour.WorldPosition.y += -1.0f / ((new Vector3(x, heightOffset, z).magnitude + 1) * strength);
             }
         }
 
@@ -79,6 +82,6 @@ public class ErosionAgent : Agent
 
         float posProc = Mathf.InverseLerp(Terrain.Min, Terrain.Max, Graph.AtPos(_Position).WorldPosition.y);
 
-        return Terrain.BeachesRange.IsInRange(posProc); // run until we have reached the beach
+        return Terrain.BeachesRange.IsInRange(posProc) || ++_UsedTokens >= Params.Tokens; // run until we have reached the beach or ran out of tokens to use
     }
 }

@@ -83,18 +83,26 @@ public class AgentSystem : MonoBehaviour
                 break;
         }
 
+        System.Diagnostics.Stopwatch stopWatch = System.Diagnostics.Stopwatch.StartNew();
+        double secondFrame = stopWatch.Elapsed.TotalMilliseconds;
+
         while (completedAgents != totalAgents)
         {
             int takenTokens = 0;
+
+            System.TimeSpan elapsedTime = stopWatch.Elapsed;
+            double firstFrame = elapsedTime.TotalMilliseconds;
+
+            double deltaTime = (firstFrame - secondFrame) / 1000.0;
 
             for (int i = agents.Count - 1; i >= 0; i--)
             {
                 if (takenTokens >= totalTokens)
                     break;
 
-                bool status = agents[i].Update();
-
                 ++takenTokens;
+
+                bool status = agents[i].Update((float)deltaTime);
 
                 if (status) // if agent is done, remove it
                 {
@@ -102,6 +110,8 @@ public class AgentSystem : MonoBehaviour
                     agents.RemoveAt(i);
                 }
             }
+
+            secondFrame = elapsedTime.TotalMilliseconds;
         }
     }
 

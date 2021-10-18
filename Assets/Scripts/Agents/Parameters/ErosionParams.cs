@@ -14,6 +14,7 @@ public class ErosionParams : AgentParams
 
     public override void Randomize()
     {
+        Tokens = StaticRandom.Range(30, 100);
         Leniency = StaticRandom.Range(-0.3f, 0.8f);
         InverseStrength = StaticRandom.Range(1.0f, 50.0f);
         AreaOfEffect = StaticRandom.Range(1, 7);
