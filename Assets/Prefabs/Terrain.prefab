@@ -103,11 +103,11 @@ MonoBehaviour:
     Min: 0.95041317
     Max: 1
   MountainsRange:
-    Min: 0.6022727
+    Min: 0.55061984
     Max: 1
   PlainsRange:
-    Min: 0.39772725
-    Max: 0.59917355
+    Min: 0.45454544
+    Max: 0.697314
   BeachesRange:
     Min: 0.35123968
     Max: 0.4028926
@@ -146,7 +146,7 @@ MonoBehaviour:
   _UseSeed: 1
   _Seed: 5
   _Octaves:
-  - _Position: {x: 0, y: 0}
+  - _Position: {x: 1.63, y: 0}
     _Amplitude: 219
     _Frequency: 114
   - _Position: {x: 0, y: 0}

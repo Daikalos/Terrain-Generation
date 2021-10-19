@@ -29,7 +29,7 @@ public class Dijkstra
                 {
                     Vertex neighbour = edge.To;
 
-                    float gScore = current.G + Graph.DiagonalDistance(current, neighbour);
+                    float gScore = current.G + Graph.DiagonalDistance3D(current, neighbour);
                     if (gScore < neighbour.G)
                     {
                         neighbour.G = gScore;

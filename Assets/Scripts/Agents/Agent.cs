@@ -10,7 +10,7 @@ public abstract class Agent
     private TerrainMesh _Terrain;
     private AgentParams _AgentParams;
 
-    protected int _UsedTokens = 0;
+    protected int _CurrentTokens = 0;
 
     protected Graph Graph => _Graph;
     protected TerrainMesh Terrain => _Terrain;
@@ -21,6 +21,8 @@ public abstract class Agent
         _Graph = graph;
         _Terrain = terrain;
         _AgentParams = agentParams;
+
+        _CurrentTokens = agentParams.Tokens;
     }
 
     public abstract void Initialize();

@@ -55,7 +55,7 @@ public class Graph
 
                             vertex.AddNeighbour(neighbour);
 
-                            new Edge(vertex, neighbour, DiagonalDistance(vertex, neighbour));
+                            new Edge(vertex, neighbour, DiagonalDistance3D(vertex, neighbour));
                         }
                     }
                 }
@@ -137,16 +137,26 @@ public class Graph
         return WithinBoard(vertex.LocalPosition);
     }
 
-    public static float ManhattanDistance(Vertex from, Vertex to)
+    public static float ManhattanDistance3D(Vertex from, Vertex to)
     {
         return Math.Abs(to.WorldPosition.x - from.WorldPosition.x) +
                Math.Abs(to.WorldPosition.y - from.WorldPosition.y) +
                Math.Abs(to.WorldPosition.z - from.WorldPosition.z);
     }
-    public static float DiagonalDistance(Vertex from, Vertex to)
+    public static float ManhattanDistance2D(Vector2 from, Vector2 to)
+    {
+        return Math.Abs(to.x - from.x) +
+               Math.Abs(to.y - from.y);
+    }
+    public static float DiagonalDistance3D(Vertex from, Vertex to)
     {
         return (float)Math.Sqrt(Math.Pow(to.WorldPosition.x - from.WorldPosition.x, 2) +
                                 Math.Pow(to.WorldPosition.y - from.WorldPosition.y, 2) +
                                 Math.Pow(to.WorldPosition.z - from.WorldPosition.z, 2));
+    }
+    public static float DiagonalDistance2D(Vector2 from, Vector2 to)
+    {
+        return (float)Math.Sqrt(Math.Pow(to.x - from.x, 2) +
+                                Math.Pow(to.y - from.y, 2));
     }
 }

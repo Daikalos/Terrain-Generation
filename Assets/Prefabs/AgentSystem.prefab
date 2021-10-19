@@ -45,21 +45,68 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Terrain: {fileID: 0}
   _AgentsOrderOfExecution:
-  - AgentType: 0
-    TotalAgents: 5000
-    TotalTokens: 2000
   - AgentType: 1
-    TotalAgents: 0
-    TotalTokens: 0
-  - AgentType: 2
-    TotalAgents: 0
-    TotalTokens: 0
+    TotalAgents: 5
+    TotalConcurrent: 2
+  - AgentType: 0
+    TotalAgents: 7000
+    TotalConcurrent: 3500
   _ErosionParams:
-    Tokens: 200
+    Tokens: 85
     Leniency: -0.05
-    InverseStrength: 30
-    AreaOfEffect: 6
-  _PlainsParams:
-    Tokens: 0
-  _RiverParams:
-    Tokens: 0
+    Strength: 0.13
+    AreaOfEffect: 5
+    DiminishingCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: -2.076789
+        outSlope: -2.076789
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0.040628117
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+  _PlainParams:
+    Tokens: 195
+    Smoothing: 0.429
+    SwitchDirection: 0.3
+    MoveMagnitude: 5
+    AreaOfEffect: 15
+    DiminishingCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: -1
+        outSlope: -1
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: -1
+        outSlope: -1
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4

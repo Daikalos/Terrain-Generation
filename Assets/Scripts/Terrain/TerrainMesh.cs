@@ -55,17 +55,17 @@ public class TerrainMesh : MonoBehaviour
     private float _TileSize;
 
     [NonSerialized]
-    public List<Vector2Int> MountainsRidge;
+    public bool[] MountainsRidge;
     [NonSerialized]
-    public List<Vector2Int> Mountains;
+    public bool[] Mountains;
     [NonSerialized]
-    public List<Vector2Int> Plains;
+    public bool[] Plains;
     [NonSerialized]
-    public List<Vector2Int> Beaches;
+    public bool[] Beaches;
     [NonSerialized]
-    public List<Vector2Int> Rivers;
+    public bool[] Rivers;
     [NonSerialized]
-    public List<Vector2Int> Oceans;
+    public bool[] Oceans;
 
     public Mesh Mesh => _Mesh;
 
@@ -182,56 +182,65 @@ public class TerrainMesh : MonoBehaviour
 
     public void SetTerrainFeatures()
     {
-        MountainsRidge = new List<Vector2Int>(_Width * _Height);
-        Mountains = new List<Vector2Int>(_Width * _Height);
-        Plains = new List<Vector2Int>(_Width * _Height);
-        Beaches = new List<Vector2Int>(_Width * _Height);
-        Oceans = new List<Vector2Int>(_Width * _Height);
+        MountainsRidge = new bool[_Width * _Height];
+        Mountains = new bool[_Width * _Height];
+        Plains = new bool[_Width * _Height];
+        Beaches = new bool[_Width * _Height];
+        Rivers = new bool[_Width * _Height];
+        Oceans = new bool[_Width * _Height];
 
         for (int x = 0; x < _Width; ++x)
         {
             for (int z = 0; z < _Height; ++z)
             {
-                float posPercentage = Mathf.InverseLerp(_Min, _Max, _Vertices[x + z * _Width].y);
+                int i = x + z * _Width;
+
+                float posPercentage = Mathf.InverseLerp(_Min, _Max, _Vertices[i].y);
 
                 if (MountainsRidgeRange.IsInRange(posPercentage))
-                    MountainsRidge.Add(new Vector2Int(x, z));
+                    MountainsRidge[i] = true;
                 if (MountainsRange.IsInRange(posPercentage))
-                    Mountains.Add(new Vector2Int(x, z));
+                    Mountains[i] = true;
                 if (PlainsRange.IsInRange(posPercentage))
-                    Plains.Add(new Vector2Int(x, z));
+                    Plains[i] = true;
                 if (BeachesRange.IsInRange(posPercentage))
-                    Beaches.Add(new Vector2Int(x, z));
+                    Beaches[i] = true;
                 if (OceansRange.IsInRange(posPercentage))
-                    Oceans.Add(new Vector2Int(x, z));
+                    Oceans[i] = true;
             }
         }
     }
 
     public void SetTerrainFeatures(float[] yCoords, int width, int height, float min, float max)
     {
-        MountainsRidge = new List<Vector2Int>(width * height);
-        Mountains = new List<Vector2Int>(width * height);
-        Plains = new List<Vector2Int>(width * height);
-        Beaches = new List<Vector2Int>(width * height);
-        Oceans = new List<Vector2Int>(width * height);
+        _Width = width;
+        _Height = height;
+
+        MountainsRidge = new bool[width * height];
+        Mountains = new bool[width * height];
+        Plains = new bool[width * height];
+        Beaches = new bool[width * height];
+        Rivers = new bool[width * height];
+        Oceans = new bool[width * height];
 
         for (int x = 0; x < width; ++x)
         {
             for (int z = 0; z < height; ++z)
             {
-                float posPercentage = Mathf.InverseLerp(min, max, yCoords[x + z * width]);
+                int i = x + z * width;
+
+                float posPercentage = Mathf.InverseLerp(min, max, yCoords[i]);
 
                 if (MountainsRidgeRange.IsInRange(posPercentage))
-                    MountainsRidge.Add(new Vector2Int(x, z));
+                    MountainsRidge[i] = true;
                 if (MountainsRange.IsInRange(posPercentage))
-                    Mountains.Add(new Vector2Int(x, z));
+                    Mountains[i] = true;
                 if (PlainsRange.IsInRange(posPercentage))
-                    Plains.Add(new Vector2Int(x, z));
+                    Plains[i] = true;
                 if (BeachesRange.IsInRange(posPercentage))
-                    Beaches.Add(new Vector2Int(x, z));
+                    Beaches[i] = true;
                 if (OceansRange.IsInRange(posPercentage))
-                    Oceans.Add(new Vector2Int(x, z));
+                    Oceans[i] = true;
             }
         }
     }
@@ -262,5 +271,18 @@ public class TerrainMesh : MonoBehaviour
         _Mesh.triangles = _Triangles;
         _Mesh.colors = _Colors;
         _Mesh.RecalculateNormals();
+    }
+
+    public Vector2Int RandomPosition(bool[] terrainType, int width, int height)
+    {
+        int x, z, max = width + height;
+        do
+        {
+            x = StaticRandom.Range(0, width);
+            z = StaticRandom.Range(0, height);
+        }
+        while (!terrainType[x + z * width] && --max >= 0);
+
+        return new Vector2Int(x, z);
     }
 }

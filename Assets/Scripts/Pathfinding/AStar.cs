@@ -29,11 +29,11 @@ public static class AStar
                 {
                     Vertex neighbour = edge.To;
 
-                    float gScore = current.G + Graph.DiagonalDistance(current, neighbour);
+                    float gScore = current.G + Graph.DiagonalDistance3D(current, neighbour);
                     if (gScore < neighbour.G)
                     {
                         neighbour.G = gScore;
-                        neighbour.H = Graph.DiagonalDistance(neighbour, goal);
+                        neighbour.H = Graph.DiagonalDistance3D(neighbour, goal);
 
                         neighbour.Parent = current;
 

@@ -212,7 +212,7 @@ public class HeatmapTexture : MonoBehaviour
         {
             for (int y = 0; y < _RenderTexture.height; ++y)
             {
-                float color = _Heatmap[x + y * _RenderTexture.width] / 7.0f;
+                float color = _Heatmap[x + y * _RenderTexture.width] / 4.0f;
                 _Texture.SetPixel(x, y, _HeatmapGradient.Evaluate(color));
             }
         }
