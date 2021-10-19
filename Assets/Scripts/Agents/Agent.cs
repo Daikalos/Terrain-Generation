@@ -31,5 +31,5 @@ public abstract class Agent
     /// update the agent
     /// </summary>
     /// <returns>if completed</returns>
-    public abstract bool Update(float deltaTime);
+    public abstract bool Update();
 }

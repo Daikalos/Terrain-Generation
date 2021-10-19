@@ -11,7 +11,7 @@ public class ErosionParams : AgentParams
     public float Leniency = -0.08f;
     public float Strength = 0.15f;
     public int AreaOfEffect = 6;
-    public AnimationCurve DiminishingCurve;
+    public AnimationCurve Diminish;
 
     public override void Randomize()
     {

@@ -33,7 +33,7 @@ public class PlainAgent : Agent
         _Direction = new Vector2Int(StaticRandom.Range(-1, 2), StaticRandom.Range(-1, 2));
     }
 
-    public override bool Update(float deltaTime)
+    public override bool Update()
     {
         if (_CurrentTokens-- <= 0 || !_FoundGoodPosition)
             return true;
@@ -81,11 +81,11 @@ public class PlainAgent : Agent
                 float effect = distance / Params.AreaOfEffect;
 
                 neighbour.WorldPosition.y = Mathf.SmoothStep(neighbour.WorldPosition.y, avg, 
-                    Params.DiminishingCurve.Evaluate(effect) * Params.Smoothing);
+                    Params.Diminish.Evaluate(effect) * Params.Smoothing);
             }
         }
 
-        if (StaticRandom.Range(0.0f, 1.0f) <= Params.SwitchDirection)
+        if (StaticRandom.Range(0.0f, 1.0f) <= Params.SwitchDirectionChance)
         {
             float angle = StaticRandom.Range(0.0f, 2.0f * Mathf.PI);
             Vector2 pointInCircle = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));

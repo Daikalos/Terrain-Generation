@@ -59,17 +59,9 @@ public class AgentSystem : MonoBehaviour
         List<Agent> agents = Populate(agentType, totalAgents);
         int completedAgents = 0;
 
-        System.Diagnostics.Stopwatch stopWatch = System.Diagnostics.Stopwatch.StartNew();
-        double secondFrame = stopWatch.Elapsed.TotalMilliseconds;
-
         while (completedAgents != totalAgents)
         {
             int activeAgents = 0;
-
-            System.TimeSpan elapsedTime = stopWatch.Elapsed;
-            double firstFrame = elapsedTime.TotalMilliseconds;
-
-            double deltaTime = (firstFrame - secondFrame) / 1000.0;
 
             for (int i = agents.Count - 1; i >= 0; i--)
             {
@@ -78,7 +70,7 @@ public class AgentSystem : MonoBehaviour
 
                 ++activeAgents;
 
-                bool status = agents[i].Update((float)deltaTime);
+                bool status = agents[i].Update();
 
                 if (status) // if agent is done, remove it
                 {
@@ -86,8 +78,6 @@ public class AgentSystem : MonoBehaviour
                     agents.RemoveAt(i);
                 }
             }
-
-            secondFrame = elapsedTime.TotalMilliseconds;
         }
     }
 

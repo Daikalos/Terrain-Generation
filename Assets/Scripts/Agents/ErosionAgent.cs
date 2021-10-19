@@ -20,7 +20,7 @@ public class ErosionAgent : Agent
         _Visited = new List<Vertex>();
     }
 
-    public override bool Update(float deltaTime)
+    public override bool Update()
     {
         if (_CurrentTokens-- <= 0)
             return true;
@@ -54,7 +54,7 @@ public class ErosionAgent : Agent
                 float effect = distance / Params.AreaOfEffect;
                 float angle = 1.0f - (Vector3.Angle(perpendicular, Vector3.up) / 90.0f);
 
-                squashedArea.Add((neighbour, -Params.DiminishingCurve.Evaluate(effect) * angle * Params.Strength));
+                squashedArea.Add((neighbour, -Params.Diminish.Evaluate(effect) * angle * Params.Strength));
             }
         }
 

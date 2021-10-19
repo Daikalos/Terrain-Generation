@@ -10,17 +10,17 @@ public class PlainParams : AgentParams
     [Range(0.0f, 1.0f)]
     public float Smoothing = 0.05f;
     [Range(0.0f, 1.0f)]
-    public float SwitchDirection = 0.09f;
+    public float SwitchDirectionChance = 0.09f;
     public float MoveMagnitude = 5.0f;
     public int AreaOfEffect = 10;
-    public AnimationCurve DiminishingCurve;
+    public AnimationCurve Diminish;
 
     public override void Randomize()
     {
         Tokens = StaticRandom.Range(50, 200);
         Smoothing = StaticRandom.Range(0.01f, 1.0f);
         MoveMagnitude = StaticRandom.Range(1, 3);
-        SwitchDirection = StaticRandom.Range(0.01f, 0.3f);
+        SwitchDirectionChance = StaticRandom.Range(0.01f, 0.3f);
         AreaOfEffect = StaticRandom.Range(5, 15);
     }
 }

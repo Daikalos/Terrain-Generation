@@ -56,7 +56,7 @@ MonoBehaviour:
     Leniency: -0.05
     Strength: 0.13
     AreaOfEffect: 5
-    DiminishingCurve:
+    Diminish:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -83,10 +83,10 @@ MonoBehaviour:
   _PlainParams:
     Tokens: 195
     Smoothing: 0.429
-    SwitchDirection: 0.3
+    SwitchDirectionChance: 0.09
     MoveMagnitude: 5
     AreaOfEffect: 15
-    DiminishingCurve:
+    Diminish:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
